@@ -1,32 +1,39 @@
 import React from 'react';
 import agent from '../../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { ADD_COMMENT } from '../../constants/actionTypes';
+import { addComment } from '../../reducers/article';
+import { ProfileModel } from '../../models';
 
-const mapDispatchToProps = dispatch => ({
-  onSubmit: payload =>
-    dispatch({ type: ADD_COMMENT, payload })
-});
+const mapDispatchToProps = {
+  onSubmit: addComment
+};
 
-class CommentInput extends React.Component {
-  constructor() {
-    super();
+const connector = connect(() => ({}), mapDispatchToProps);
+class CommentInput extends React.Component<ConnectedProps<typeof connector> & {
+  slug: string,
+  currentUser:ProfileModel
+}, { body: string }> {
+  constructor(p) {
+    super(p);
     this.state = {
       body: ''
     };
 
-    this.setBody = ev => {
-      this.setState({ body: ev.target.value });
-    };
-
-    this.createComment = ev => {
-      ev.preventDefault();
-      const payload = agent.Comments.create(this.props.slug,
-        { body: this.state.body });
-      this.setState({ body: '' });
-      this.props.onSubmit(payload);
-    };
   }
+  setBody = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ body: ev.target.value });
+  }
+
+  createComment = (ev: React.FormEvent) => {
+    ev.preventDefault();
+
+    agent.Comments.create(this.props.slug,
+      { body: this.state.body }).then(payload => {
+        this.setState({ body: '' });
+        this.props.onSubmit(payload);
+      });
+  };
 
   render() {
     return (
@@ -36,7 +43,7 @@ class CommentInput extends React.Component {
             placeholder="Write a comment..."
             value={this.state.body}
             onChange={this.setBody}
-            rows="3">
+            rows={3}>
           </textarea>
         </div>
         <div className="card-footer">
@@ -55,4 +62,4 @@ class CommentInput extends React.Component {
   }
 }
 
-export default connect(() => ({}), mapDispatchToProps)(CommentInput);
+export default connector(CommentInput);

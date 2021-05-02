@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ArticleState, MultipleComments, SingleArticle } from '../models';
+import { ArticleState, MultipleComments, SingleArticle, SingleComment } from '../models';
 
 
 const slice = createSlice({
@@ -12,6 +12,11 @@ const slice = createSlice({
       article: action.payload[0].article,
       comments: action.payload[1].comments
     }),
+    addComment: (state, action: PayloadAction<SingleComment & { errors? }> & { error? }) => ({
+      ...state,
+      commentErrors: action.error ? action.payload.errors : null,
+      comments: action.error ? null : (state.comments || []).concat([action.payload.comment])
+    }),
     articlePageUnLoaded: () => ({}),
     deleteComment: (state, action: PayloadAction<number>) => ({
       ...state,
@@ -19,5 +24,9 @@ const slice = createSlice({
     })
   }
 });
-export const { articlePageLoaded, articlePageUnLoaded, deleteComment } = slice.actions;
+export const {
+  articlePageLoaded,
+  articlePageUnLoaded,
+  deleteComment,
+  addComment } = slice.actions;
 export default slice.reducer;
