@@ -76,7 +76,7 @@ const Articles = {
 const Comments = {
   create: (slug: string, comment: CommentModel) =>
     requests.post<SingleComment>(`/articles/${slug}/comments`, { comment }),
-  delete: (slug: string, commentId: CommentModel) =>
+  delete: (slug: string, commentId: number) =>
     requests.del(`/articles/${slug}/comments/${commentId}`),
   forArticle: (slug: string) =>
     requests.get<MultipleComments>(`/articles/${slug}/comments`)
