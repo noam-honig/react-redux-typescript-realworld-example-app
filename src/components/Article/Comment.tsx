@@ -1,8 +1,13 @@
 import DeleteButton from './DeleteButton';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { CommentModel, ProfileModel } from '../../models';
 
-const Comment = props => {
+const Comment = (props: {
+  comment: CommentModel,
+  currentUser: ProfileModel,
+  slug: string
+}) => {
   const comment = props.comment;
   const show = props.currentUser &&
     props.currentUser.username === comment.author.username;

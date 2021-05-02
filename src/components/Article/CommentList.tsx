@@ -1,7 +1,12 @@
 import Comment from './Comment';
 import React from 'react';
+import { CommentModel, ProfileModel } from '../../models';
 
-const CommentList = props => {
+const CommentList = (props:{
+  currentUser:ProfileModel,
+  comments:CommentModel[],
+  slug:string
+}) => {
   return (
     <div>
       {

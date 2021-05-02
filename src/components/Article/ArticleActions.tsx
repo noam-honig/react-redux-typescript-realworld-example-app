@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom';
 import React from 'react';
 import agent from '../../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { DELETE_ARTICLE } from '../../constants/actionTypes';
+import { ArticleModel } from '../../models';
 
 const mapDispatchToProps = dispatch => ({
   onClickDelete: payload =>
     dispatch({ type: DELETE_ARTICLE, payload })
 });
-
-const ArticleActions = props => {
+const connector = connect(() => ({}), mapDispatchToProps);
+const ArticleActions = (props: ConnectedProps<typeof connector>&{
+  canModify:Boolean,
+  article:ArticleModel
+}) => {
   const article = props.article;
   const del = () => {
     props.onClickDelete(agent.Articles.del(article.slug))
@@ -38,4 +42,4 @@ const ArticleActions = props => {
   );
 };
 
-export default connect(() => ({}), mapDispatchToProps)(ArticleActions);
+export default connector(ArticleActions);

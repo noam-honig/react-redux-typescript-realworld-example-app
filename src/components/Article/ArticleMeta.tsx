@@ -1,8 +1,12 @@
 import ArticleActions from './ArticleActions';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { ArticleModel } from '../../models';
 
-const ArticleMeta = props => {
+const ArticleMeta = (props:{
+  canModify:boolean,
+  article:ArticleModel
+}) => {
   const article = props.article;
   return (
     <div className="article-meta">

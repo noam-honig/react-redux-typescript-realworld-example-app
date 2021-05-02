@@ -2,13 +2,20 @@ import CommentInput from './CommentInput';
 import CommentList from './CommentList';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import ListErrors from '../ListErrors';
+import { CommentModel, ProfileModel } from '../../models';
 
-const CommentContainer = props => {
+const CommentContainer = (props: {
+  currentUser: ProfileModel,
+  errors: {},
+  slug: string,
+  comments: CommentModel[]
+}) => {
   if (props.currentUser) {
     return (
       <div className="col-xs-12 col-md-8 offset-md-2">
         <div>
-          <list-errors errors={props.errors}></list-errors>
+          <ListErrors errors={props.errors}></ListErrors>
           <CommentInput slug={props.slug} currentUser={props.currentUser} />
         </div>
 
