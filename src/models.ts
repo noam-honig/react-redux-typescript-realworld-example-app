@@ -38,8 +38,8 @@ export interface ProfileModel {
     image?: string;
     following?: boolean;
 }
-export interface SingleProfile{
-    profile:ProfileModel;
+export interface SingleProfile {
+    profile: ProfileModel;
 }
 
 export interface CommentModel {
@@ -52,15 +52,21 @@ export interface SingleComment {
     comment: CommentModel;
 }
 export interface MultipleComments {
-    Comments: CommentModel[];
+    comments: CommentModel[];
 }
 
 export interface StateModel {
-    article: { article: ArticleModel };
+    article: ArticleState;
     common: { currentUser: ProfileModel, appName: string, token: string };
     home: {};
     articleList: ArticleListState;
 };
+export interface ArticleState {
+    article?: ArticleModel;
+    comments?: CommentModel[];
+    commentErrors?: string;
+    currentUser?: ProfileModel;
+  }
 export interface ArticleListState {
     articles?: ArticleModel[];
     articlesCount?: number;
@@ -73,4 +79,7 @@ export interface ArticleListState {
 
 export interface ListOfTags {
     tags: string[]
+}
+export interface RouterMatchModel {
+    match: { params: { id?: string } }
 }

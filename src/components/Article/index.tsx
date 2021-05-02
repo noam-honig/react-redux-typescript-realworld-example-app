@@ -2,28 +2,28 @@ import ArticleMeta from './ArticleMeta';
 import CommentContainer from './CommentContainer';
 import React from 'react';
 import agent from '../../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import marked from 'marked';
-import { ARTICLE_PAGE_LOADED, ARTICLE_PAGE_UNLOADED } from '../../constants/actionTypes';
+import { RouterMatchModel, StateModel } from '../../models';
+import { articlePageLoaded, articlePageUnLoaded } from '../../reducers/article';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StateModel) => ({
   ...state.article,
   currentUser: state.common.currentUser
 });
 
-const mapDispatchToProps = dispatch => ({
-  onLoad: payload =>
-    dispatch({ type: ARTICLE_PAGE_LOADED, payload }),
-  onUnload: () =>
-    dispatch({ type: ARTICLE_PAGE_UNLOADED })
-});
-
-class Article extends React.Component {
+const mapDispatchToProps = {
+  onLoad: articlePageLoaded,
+  onUnload: articlePageUnLoaded
+};
+const connector = connect(mapStateToProps, mapDispatchToProps);
+class Article extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
-    this.props.onLoad(Promise.all([
+
+    Promise.all([
       agent.Articles.get(this.props.match.params.id),
       agent.Comments.forArticle(this.props.match.params.id)
-    ]));
+    ]).then(payload => this.props.onLoad(payload));
   }
 
   componentWillUnmount() {
@@ -94,4 +94,4 @@ class Article extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Article);
+export default connector(Article);
