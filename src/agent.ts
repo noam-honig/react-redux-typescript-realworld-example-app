@@ -53,7 +53,7 @@ const Articles = {
   del: slug =>
     requests.del(`/articles/${slug}`),
   favorite: slug =>
-    requests.post(`/articles/${slug}/favorite`),
+    requests.post(`/articles/${slug}/favorite`,{}),
   favoritedBy: (author, page) =>
     requests.get(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
   feed: () =>
@@ -79,7 +79,7 @@ const Comments = {
 
 const Profile = {
   follow: username =>
-    requests.post(`/profiles/${username}/follow`),
+    requests.post(`/profiles/${username}/follow`, {}),
   get: username =>
     requests.get(`/profiles/${username}`),
   unfollow: username =>
