@@ -87,5 +87,5 @@ const slice = createSlice({
 
   }
 });
-export const articleList = slice.actions;
+export const articleListActions = slice.actions;
 export default slice.reducer;

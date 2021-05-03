@@ -10,7 +10,7 @@ import {
   APPLY_TAG_FILTER
 } from '../../constants/actionTypes';
 import { HomeState, StateModel } from '../../models';
-import { articleList } from '../../reducers/articleList';
+import { articleListActions } from '../../reducers/articleList';
 
 const Promise = global.Promise;
 
@@ -21,7 +21,7 @@ const mapStateToProps = (state: StateModel) => ({
 });
 
 const mapDispatchToProps = ({
-  onClickTag:articleList.applyTagFilter,
+  onClickTag:articleListActions.applyTagFilter,
   onLoad: HOME_PAGE_LOADED,
   onUnload: HOME_PAGE_UNLOADED
 });

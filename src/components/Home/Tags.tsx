@@ -1,9 +1,9 @@
 import React from 'react';
 import agent from '../../agent';
-import { articleList } from '../../reducers/articleList';
+import { articleListActions } from '../../reducers/articleList';
 
 const Tags = (props: {
-  onClickTag: typeof articleList.applyTagFilter,
+  onClickTag: typeof articleListActions.applyTagFilter,
   tags: string[]
 }) => {
   const tags = props.tags;

@@ -11,35 +11,25 @@ import {
   UPDATE_FIELD_EDITOR
 } from '../constants/actionTypes';
 import { RouterMatchModel, StateModel } from '../models';
+import { editorActions } from '../reducers/editor';
 
 const mapStateToProps = (state: StateModel) => ({
   ...state.editor
 });
 
 const mapDispatchToProps = ({
-  onAddTag: () =>
-    ({ type: ADD_TAG }),
-  onLoad: payload =>
-    ({ type: EDITOR_PAGE_LOADED, payload }),
-  onRemoveTag: tag =>
-    ({ type: REMOVE_TAG, tag }),
-  onSubmit: payload =>
-    ({ type: ARTICLE_SUBMITTED, payload }),
-  onUnload: () =>
-    ({ type: EDITOR_PAGE_UNLOADED }),
-  onUpdateField: (key, value) =>
-    ({ type: UPDATE_FIELD_EDITOR, key, value })
+  onAddTag: editorActions.addTag,
+  onLoad: editorActions.editorPageLoaded,
+  onRemoveTag: editorActions.removeTag,
+  onSubmit: editorActions.articleSubmitted,
+  onUnload: editorActions.editorPageUnLoaded,
+  onUpdateField: editorActions.updateFieldEditor
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
-  constructor(props) {
-    super(props);
-
-
-
-  }
+  
   updateFieldEvent =
-    key => ev => this.props.onUpdateField(key, ev.target.value);
+    key => ev => this.props.onUpdateField({ key, value: ev.target.value });
   changeTitle = this.updateFieldEvent('title');
   changeDescription = this.updateFieldEvent('description');
   changeBody = this.updateFieldEvent('body');
@@ -69,15 +59,15 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
     const promise = this.props.articleSlug ?
       agent.Articles.update(Object.assign(article, slug)) :
       agent.Articles.create(article);
-
-    this.props.onSubmit(promise);
+    promise.then(this.props.onSubmit);
   };
 
   componentWillReceiveProps(nextProps) {
     if (this.props.match.params.slug !== nextProps.match.params.slug) {
       if (nextProps.match.params.slug) {
         this.props.onUnload();
-        return this.props.onLoad(agent.Articles.get(this.props.match.params.slug));
+        agent.Articles.get(this.props.match.params.slug).then(this.props.onLoad);
+        return;
       }
       this.props.onLoad(null);
     }
@@ -85,7 +75,8 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
 
   componentWillMount() {
     if (this.props.match.params.slug) {
-      return this.props.onLoad(agent.Articles.get(this.props.match.params.slug));
+      agent.Articles.get(this.props.match.params.slug).then(this.props.onLoad);
+      return;
     }
     this.props.onLoad(null);
   }

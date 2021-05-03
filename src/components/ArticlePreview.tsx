@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import { articleList } from '../reducers/articleList';
+import { articleListActions } from '../reducers/articleList';
 import { ArticleModel } from '../models';
 
 const FAVORITED_CLASS = 'btn btn-sm btn-primary';
@@ -10,7 +10,7 @@ const NOT_FAVORITED_CLASS = 'btn btn-sm btn-outline-primary';
 
 const mapDispatchToProps = ({
 
-  refreshFavorite: articleList.refreshArticleFavorited
+  refreshFavorite: articleListActions.refreshArticleFavorited
 });
 
 const connector = connect(() => ({}), mapDispatchToProps);

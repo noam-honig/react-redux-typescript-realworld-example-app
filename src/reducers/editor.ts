@@ -1,54 +1,53 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
-  EDITOR_PAGE_LOADED,
-  EDITOR_PAGE_UNLOADED,
   ARTICLE_SUBMITTED,
-  ASYNC_START,
-  ADD_TAG,
-  REMOVE_TAG,
-  UPDATE_FIELD_EDITOR
+  ASYNC_START
 } from '../constants/actionTypes';
-import { EditorState } from '../models';
+import { EditorState, SingleArticle } from '../models';
 
-export default (state:EditorState = {}, action) => {
+const slice = createSlice({
+  name: 'editor',
+  initialState: { tagList: [] } as EditorState,
+  reducers: {
+    editorPageLoaded: (state, action: PayloadAction<SingleArticle>) => ({
+      ...state,
+      articleSlug: action.payload ? action.payload.article.slug : '',
+      title: action.payload ? action.payload.article.title : '',
+      description: action.payload ? action.payload.article.description : '',
+      body: action.payload ? action.payload.article.body : '',
+      tagInput: '',
+      tagList: action.payload ? action.payload.article.tagList : []
+    }),
+    editorPageUnLoaded: (state) => ({}),
+    articleSubmitted: (state) => ({
+      ...state,
+      inProgress: null
+    }),
+    addTag: (state) => ({
+      ...state,
+      tagList: state.tagList.concat([state.tagInput]),
+      tagInput: ''
+    }),
+    removeTag: (state, action: PayloadAction<string>) => ({
+      ...state,
+      tagList: state.tagList.filter(tag => tag !== action.payload)
+    }),
+    updateFieldEditor: (state, action: PayloadAction<{ key: string, value: string }>) => (
+      {
+        ...state, [action.payload.key]: action.payload.value
+      })
+  }
+})
+export const editorActions = slice.actions;
+
+export default (state: EditorState = {}, action) => {
   switch (action.type) {
-    case EDITOR_PAGE_LOADED:
-      return {
-        ...state,
-        articleSlug: action.payload ? action.payload.article.slug : '',
-        title: action.payload ? action.payload.article.title : '',
-        description: action.payload ? action.payload.article.description : '',
-        body: action.payload ? action.payload.article.body : '',
-        tagInput: '',
-        tagList: action.payload ? action.payload.article.tagList : []
-      };
-    case EDITOR_PAGE_UNLOADED:
-      return {};
-    case ARTICLE_SUBMITTED:
-      return {
-        ...state,
-        inProgress: null,
-        errors: action.error ? action.payload.errors : null
-      };
+
     case ASYNC_START:
       if (action.subtype === ARTICLE_SUBMITTED) {
         return { ...state, inProgress: true };
       }
       break;
-    case ADD_TAG:
-      return {
-        ...state, 
-        tagList: state.tagList.concat([state.tagInput]),
-        tagInput: ''
-      };
-    case REMOVE_TAG:
-      return {
-        ...state,
-        tagList: state.tagList.filter(tag => tag !== action.tag)
-      };
-    case UPDATE_FIELD_EDITOR:
-      return { ...state, [action.key]: action.value };
-    default:
-      return state;
   }
 
   return state;

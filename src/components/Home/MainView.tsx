@@ -4,13 +4,20 @@ import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { CHANGE_TAB } from '../../constants/actionTypes';
 import { StateModel } from '../../models';
-import { articleList } from '../../reducers/articleList';
+import { articleListActions } from '../../reducers/articleList';
 
-const YourFeedTab = props => {
+const YourFeedTab = (props: {
+  token: string,
+  tab: string,
+  onTabClick: typeof articleListActions.changeTab
+}) => {
   if (props.token) {
     const clickHandler = ev => {
       ev.preventDefault();
-      props.onTabClick('feed', agent.Articles.feed, agent.Articles.feed());
+      agent.Articles.feed().then(articles =>
+        props.onTabClick({
+          tab: 'feed', pager: agent.Articles.feed, articles
+        }));
     }
 
     return (
@@ -27,8 +34,8 @@ const YourFeedTab = props => {
 };
 
 const GlobalFeedTab = (props: {
-  onTabClick: typeof articleList.changeTab,
-  tab:string
+  onTabClick: typeof articleListActions.changeTab,
+  tab: string
 }) => {
   const clickHandler = ev => {
     ev.preventDefault();
@@ -68,7 +75,7 @@ const mapStateToProps = (state: StateModel) => ({
 });
 
 const mapDispatchToProps = ({
-  onTabClick: articleList.changeTab
+  onTabClick: articleListActions.changeTab
 });
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

@@ -3,11 +3,11 @@ import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { SET_PAGE } from '../constants/actionTypes';
 import { Pager } from '../models';
-import { articleList } from '../reducers/articleList';
+import { articleListActions } from '../reducers/articleList';
 
 
 const mapDispatchToProps =  ({
-  onSetPage: articleList.setPage
+  onSetPage: articleListActions.setPage
 });
 
 const connector = connect(() => ({}), mapDispatchToProps);
