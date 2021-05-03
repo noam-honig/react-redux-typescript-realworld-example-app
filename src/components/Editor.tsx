@@ -1,7 +1,7 @@
 import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import {
   ADD_TAG,
   EDITOR_PAGE_LOADED,
@@ -10,65 +10,68 @@ import {
   EDITOR_PAGE_UNLOADED,
   UPDATE_FIELD_EDITOR
 } from '../constants/actionTypes';
+import { RouterMatchModel, StateModel } from '../models';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StateModel) => ({
   ...state.editor
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = ({
   onAddTag: () =>
-    dispatch({ type: ADD_TAG }),
+    ({ type: ADD_TAG }),
   onLoad: payload =>
-    dispatch({ type: EDITOR_PAGE_LOADED, payload }),
+    ({ type: EDITOR_PAGE_LOADED, payload }),
   onRemoveTag: tag =>
-    dispatch({ type: REMOVE_TAG, tag }),
+    ({ type: REMOVE_TAG, tag }),
   onSubmit: payload =>
-    dispatch({ type: ARTICLE_SUBMITTED, payload }),
-  onUnload: payload =>
-    dispatch({ type: EDITOR_PAGE_UNLOADED }),
+    ({ type: ARTICLE_SUBMITTED, payload }),
+  onUnload: () =>
+    ({ type: EDITOR_PAGE_UNLOADED }),
   onUpdateField: (key, value) =>
-    dispatch({ type: UPDATE_FIELD_EDITOR, key, value })
+    ({ type: UPDATE_FIELD_EDITOR, key, value })
 });
+const connector = connect(mapStateToProps, mapDispatchToProps);
+class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
+  constructor(props) {
+    super(props);
 
-class Editor extends React.Component {
-  constructor() {
-    super();
 
-    const updateFieldEvent =
-      key => ev => this.props.onUpdateField(key, ev.target.value);
-    this.changeTitle = updateFieldEvent('title');
-    this.changeDescription = updateFieldEvent('description');
-    this.changeBody = updateFieldEvent('body');
-    this.changeTagInput = updateFieldEvent('tagInput');
 
-    this.watchForEnter = ev => {
-      if (ev.keyCode === 13) {
-        ev.preventDefault();
-        this.props.onAddTag();
-      }
-    };
-
-    this.removeTagHandler = tag => () => {
-      this.props.onRemoveTag(tag);
-    };
-
-    this.submitForm = ev => {
-      ev.preventDefault();
-      const article = {
-        title: this.props.title,
-        description: this.props.description,
-        body: this.props.body,
-        tagList: this.props.tagList
-      };
-
-      const slug = { slug: this.props.articleSlug };
-      const promise = this.props.articleSlug ?
-        agent.Articles.update(Object.assign(article, slug)) :
-        agent.Articles.create(article);
-
-      this.props.onSubmit(promise);
-    };
   }
+  updateFieldEvent =
+    key => ev => this.props.onUpdateField(key, ev.target.value);
+  changeTitle = this.updateFieldEvent('title');
+  changeDescription = this.updateFieldEvent('description');
+  changeBody = this.updateFieldEvent('body');
+  changeTagInput = this.updateFieldEvent('tagInput');
+
+  watchForEnter = ev => {
+    if (ev.keyCode === 13) {
+      ev.preventDefault();
+      this.props.onAddTag();
+    }
+  };
+
+  removeTagHandler = tag => () => {
+    this.props.onRemoveTag(tag);
+  };
+
+  submitForm = ev => {
+    ev.preventDefault();
+    const article = {
+      title: this.props.title,
+      description: this.props.description,
+      body: this.props.body,
+      tagList: this.props.tagList
+    };
+
+    const slug = { slug: this.props.articleSlug };
+    const promise = this.props.articleSlug ?
+      agent.Articles.update(Object.assign(article, slug)) :
+      agent.Articles.create(article);
+
+    this.props.onSubmit(promise);
+  };
 
   componentWillReceiveProps(nextProps) {
     if (this.props.match.params.slug !== nextProps.match.params.slug) {
@@ -124,7 +127,7 @@ class Editor extends React.Component {
                   <fieldset className="form-group">
                     <textarea
                       className="form-control"
-                      rows="8"
+                      rows={8}
                       placeholder="Write your article (in markdown)"
                       value={this.props.body}
                       onChange={this.changeBody}>
@@ -145,8 +148,8 @@ class Editor extends React.Component {
                         (this.props.tagList || []).map(tag => {
                           return (
                             <span className="tag-default tag-pill" key={tag}>
-                              <i  className="ion-close-round"
-                                  onClick={this.removeTagHandler(tag)}>
+                              <i className="ion-close-round"
+                                onClick={this.removeTagHandler(tag)}>
                               </i>
                               {tag}
                             </span>
@@ -175,4 +178,4 @@ class Editor extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+export default connector(Editor);

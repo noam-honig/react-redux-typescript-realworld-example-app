@@ -1,8 +1,10 @@
 import ArticleList from '../ArticleList';
 import React from 'react';
 import agent from '../../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { CHANGE_TAB } from '../../constants/actionTypes';
+import { StateModel } from '../../models';
+import { articleList } from '../../reducers/articleList';
 
 const YourFeedTab = props => {
   if (props.token) {
@@ -13,9 +15,9 @@ const YourFeedTab = props => {
 
     return (
       <li className="nav-item">
-        <a  href=""
-            className={ props.tab === 'feed' ? 'nav-link active' : 'nav-link' }
-            onClick={clickHandler}>
+        <a href=""
+          className={props.tab === 'feed' ? 'nav-link active' : 'nav-link'}
+          onClick={clickHandler}>
           Your Feed
         </a>
       </li>
@@ -24,16 +26,20 @@ const YourFeedTab = props => {
   return null;
 };
 
-const GlobalFeedTab = props => {
+const GlobalFeedTab = (props: {
+  onTabClick: typeof articleList.changeTab,
+  tab:string
+}) => {
   const clickHandler = ev => {
     ev.preventDefault();
-    props.onTabClick('all', agent.Articles.all, agent.Articles.all());
+    agent.Articles.all().then(articles =>
+      props.onTabClick({ tab: 'all', pager: agent.Articles.all, articles: articles }));
   };
   return (
     <li className="nav-item">
       <a
         href=""
-        className={ props.tab === 'all' ? 'nav-link active' : 'nav-link' }
+        className={props.tab === 'all' ? 'nav-link active' : 'nav-link'}
         onClick={clickHandler}>
         Global Feed
       </a>
@@ -55,17 +61,18 @@ const TagFilterTab = props => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StateModel) => ({
   ...state.articleList,
   tags: state.home.tags,
   token: state.common.token
 });
 
-const mapDispatchToProps = dispatch => ({
-  onTabClick: (tab, pager, payload) => dispatch({ type: CHANGE_TAB, tab, pager, payload })
+const mapDispatchToProps = ({
+  onTabClick: articleList.changeTab
 });
 
-const MainView = props => {
+const connector = connect(mapStateToProps, mapDispatchToProps);
+const MainView = (props: ConnectedProps<typeof connector> & { loading?: boolean }) => {
   return (
     <div className="col-md-9">
       <div className="feed-toggle">
@@ -93,4 +100,4 @@ const MainView = props => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainView);
+export default connector(MainView);

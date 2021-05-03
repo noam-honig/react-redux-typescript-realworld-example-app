@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ProfileModel } from '../models';
 
-const LoggedOutView = props => {
+const LoggedOutView = (props:{
+  currentUser:ProfileModel
+}) => {
   if (!props.currentUser) {
     return (
       <ul className="nav navbar-nav pull-xs-right">
@@ -69,7 +72,7 @@ const LoggedInView = props => {
   return null;
 };
 
-class Header extends React.Component {
+class Header extends React.Component<{ appName: string, currentUser: ProfileModel }> {
   render() {
     return (
       <nav className="navbar navbar-light">

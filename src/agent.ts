@@ -17,7 +17,7 @@ const tokenPlugin = req => {
 }
 
 class requests {
-  static del(url): Promise<void> {
+  static del<T>(url): Promise<T> {
     return superagent.del(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody);
   }
   static get<T>(url: string): Promise<T> {
@@ -66,7 +66,7 @@ const Articles = {
   get: (slug: string) =>
     requests.get<SingleArticle>(`/articles/${slug}`),
   unfavorite: (slug: string) =>
-    requests.del(`/articles/${slug}/favorite`),
+    requests.del<SingleArticle>(`/articles/${slug}/favorite`),
   update: (article: ArticleModel) =>
     requests.put<SingleArticle>(`/articles/${article.slug}`, { article: omitSlug(article) }),
   create: (article: ArticleModel) =>

@@ -3,38 +3,44 @@ import MainView from './MainView';
 import React from 'react';
 import Tags from './Tags';
 import agent from '../../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import {
   HOME_PAGE_LOADED,
   HOME_PAGE_UNLOADED,
   APPLY_TAG_FILTER
 } from '../../constants/actionTypes';
+import { HomeState, StateModel } from '../../models';
+import { articleList } from '../../reducers/articleList';
 
 const Promise = global.Promise;
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StateModel) => ({
   ...state.home,
   appName: state.common.appName,
   token: state.common.token
 });
 
-const mapDispatchToProps = dispatch => ({
-  onClickTag: (tag, pager, payload) =>
-    dispatch({ type: APPLY_TAG_FILTER, tag, pager, payload }),
-  onLoad: (tab, pager, payload) =>
-    dispatch({ type: HOME_PAGE_LOADED, tab, pager, payload }),
-  onUnload: () =>
-    dispatch({  type: HOME_PAGE_UNLOADED })
+const mapDispatchToProps = ({
+  onClickTag:articleList.applyTagFilter,
+  onLoad: HOME_PAGE_LOADED,
+  onUnload: HOME_PAGE_UNLOADED
 });
-
-class Home extends React.Component {
+const connector = connect(mapStateToProps, mapDispatchToProps);
+class Home extends React.Component<ConnectedProps<typeof connector> & HomeState> {
   componentWillMount() {
     const tab = this.props.token ? 'feed' : 'all';
     const articlesPromise = this.props.token ?
       agent.Articles.feed :
       agent.Articles.all;
+    Promise.all([agent.Tags.getAll(), articlesPromise()]).then(x => {
+      this.props.onLoad({
+        tab: tab,
+        pager: articlesPromise,
+        articles: x[1],
+        tags: x[0]
+      })
+    });
 
-    this.props.onLoad(tab, articlesPromise, Promise.all([agent.Tags.getAll(), articlesPromise()]));
   }
 
   componentWillUnmount() {
@@ -49,7 +55,7 @@ class Home extends React.Component {
 
         <div className="container page">
           <div className="row">
-            <MainView />
+            <MainView /> 
 
             <div className="col-md-3">
               <div className="sidebar">
@@ -70,4 +76,4 @@ class Home extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connector(Home);

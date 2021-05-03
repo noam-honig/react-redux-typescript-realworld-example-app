@@ -2,36 +2,37 @@ import { Link } from 'react-router-dom';
 import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import {
   UPDATE_FIELD_AUTH,
   LOGIN,
   LOGIN_PAGE_UNLOADED
 } from '../constants/actionTypes';
+import { StateModel } from '../models';
 
-const mapStateToProps = state => ({ ...state.auth });
+const mapStateToProps = (state:StateModel) => ({ ...state.auth });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps =  ({
   onChangeEmail: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'email', value }),
+    ({ type: UPDATE_FIELD_AUTH, key: 'email', value }),
   onChangePassword: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'password', value }),
+    ({ type: UPDATE_FIELD_AUTH, key: 'password', value }),
   onSubmit: (email, password) =>
-    dispatch({ type: LOGIN, payload: agent.Auth.login(email, password) }),
+    ({ type: LOGIN, payload: agent.Auth.login(email, password) }),
   onUnload: () =>
-    dispatch({ type: LOGIN_PAGE_UNLOADED })
+    ({ type: LOGIN_PAGE_UNLOADED })
 });
-
-class Login extends React.Component {
-  constructor() {
-    super();
-    this.changeEmail = ev => this.props.onChangeEmail(ev.target.value);
-    this.changePassword = ev => this.props.onChangePassword(ev.target.value);
-    this.submitForm = (email, password) => ev => {
-      ev.preventDefault();
-      this.props.onSubmit(email, password);
-    };
+const connector = connect(mapStateToProps, mapDispatchToProps);
+class Login extends React.Component<ConnectedProps<typeof connector>> {
+  constructor(p) {
+    super(p);
   }
+  changeEmail = ev => this.props.onChangeEmail(ev.target.value);
+  changePassword = ev => this.props.onChangePassword(ev.target.value);
+  submitForm = (email, password) => ev => {
+    ev.preventDefault();
+    this.props.onSubmit(email, password);
+  };
 
   componentWillUnmount() {
     this.props.onUnload();
@@ -94,4 +95,4 @@ class Login extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connector(Login);

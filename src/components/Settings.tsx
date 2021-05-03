@@ -1,16 +1,27 @@
 import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import {
   SETTINGS_SAVED,
   SETTINGS_PAGE_UNLOADED,
   LOGOUT
 } from '../constants/actionTypes';
+import { StateModel, UserModel } from '../models';
 
-class SettingsForm extends React.Component {
-  constructor() {
-    super();
+class SettingsForm extends React.Component<{
+  currentUser: UserModel,
+  onSubmitForm: any
+}, {
+  password: string,
+  image: string,
+  username: string,
+  bio: string,
+  email: string,
+  inProgress?: boolean
+}> {
+  constructor(p) {
+    super(p);
 
     this.state = {
       image: '',
@@ -20,23 +31,23 @@ class SettingsForm extends React.Component {
       password: ''
     };
 
-    this.updateState = field => ev => {
-      const state = this.state;
-      const newState = Object.assign({}, state, { [field]: ev.target.value });
-      this.setState(newState);
-    };
-
-    this.submitForm = ev => {
-      ev.preventDefault();
-
-      const user = Object.assign({}, this.state);
-      if (!user.password) {
-        delete user.password;
-      }
-
-      this.props.onSubmitForm(user);
-    };
   }
+  updateState = field => ev => {
+    const state = this.state;
+    const newState = Object.assign({}, state, { [field]: ev.target.value });
+    this.setState(newState);
+  };
+
+  submitForm = ev => {
+    ev.preventDefault();
+
+    const user = Object.assign({}, this.state);
+    // if (!user.password) {
+    //   delete user.password;
+    // }
+
+    this.props.onSubmitForm(user);
+  };
 
   componentWillMount() {
     if (this.props.currentUser) {
@@ -86,7 +97,7 @@ class SettingsForm extends React.Component {
           <fieldset className="form-group">
             <textarea
               className="form-control form-control-lg"
-              rows="8"
+              rows={8}
               placeholder="Short bio about you"
               value={this.state.bio}
               onChange={this.updateState('bio')}>
@@ -124,19 +135,20 @@ class SettingsForm extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StateModel) => ({
   ...state.settings,
   currentUser: state.common.currentUser
 });
 
-const mapDispatchToProps = dispatch => ({
-  onClickLogout: () => dispatch({ type: LOGOUT }),
+const mapDispatchToProps = ({
+  onClickLogout: () => ({ type: LOGOUT }),
   onSubmitForm: user =>
-    dispatch({ type: SETTINGS_SAVED, payload: agent.Auth.save(user) }),
-  onUnload: () => dispatch({ type: SETTINGS_PAGE_UNLOADED })
+    ({ type: SETTINGS_SAVED, payload: agent.Auth.save(user) }),
+  onUnload: () => ({ type: SETTINGS_PAGE_UNLOADED })
 });
 
-class Settings extends React.Component {
+const connector = connect(mapStateToProps, mapDispatchToProps);
+class Settings extends React.Component<ConnectedProps<typeof connector>> {
   render() {
     return (
       <div className="settings-page">
@@ -168,4 +180,4 @@ class Settings extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Settings);
+export default connector(Settings);

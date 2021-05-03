@@ -8,19 +8,24 @@ import {
   PROFILE_PAGE_UNLOADED
 } from '../constants/actionTypes';
 
-const mapDispatchToProps = dispatch => ({
-  onLoad: (pager, payload) =>
-    dispatch({ type: PROFILE_PAGE_LOADED, pager, payload }),
-  onUnload: () =>
-    dispatch({ type: PROFILE_PAGE_UNLOADED })
+const mapDispatchToProps = ({
+  onLoad: PROFILE_PAGE_LOADED,
+  onUnload: PROFILE_PAGE_UNLOADED
 });
 
+const connector = connect(mapStateToProps, mapDispatchToProps);
 class ProfileFavorites extends Profile {
   componentWillMount() {
-    this.props.onLoad(page => agent.Articles.favoritedBy(this.props.match.params.username, page), Promise.all([
+    Promise.all([
       agent.Profile.get(this.props.match.params.username),
       agent.Articles.favoritedBy(this.props.match.params.username)
-    ]));
+    ]).then(data => {
+
+      this.props.onLoad({
+        pager: page => agent.Articles.favoritedBy(this.props.match.params.username, page),
+        data
+      });
+    })
   }
 
   componentWillUnmount() {
@@ -50,4 +55,4 @@ class ProfileFavorites extends Profile {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileFavorites);
+export default connector(ProfileFavorites);

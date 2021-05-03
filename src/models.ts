@@ -39,7 +39,7 @@ export interface ProfileModel {
     following?: boolean;
 }
 export interface SingleProfile {
-    profile: ProfileModel;
+    profile?: ProfileModel;
 }
 
 export interface CommentModel {
@@ -57,16 +57,46 @@ export interface MultipleComments {
 
 export interface StateModel {
     article: ArticleState;
-    common: { currentUser: ProfileModel, appName: string, token: string };
-    home: {};
+    common: {
+        currentUser: UserModel,
+        appName: string,
+        token: string,
+        appLoaded: boolean,
+        redirectTo: string
+    };
+    home: HomeState;
     articleList: ArticleListState;
+    profile: ProfileModel;
+    editor: EditorState,
+    auth: {
+        username: string,
+        email: string,
+        password: string,
+        inProgress: boolean
+        errors: any
+    }
+    & ArticleModel,
+    settings: {
+        errors:{},
+        currentUser:UserModel
+
+    }
 };
+export interface EditorState extends ArticleModel{
+    articleSlug?: string,
+    tagInput?: string,
+    inProgress?: boolean,
+    errors?: any
+} 
 export interface ArticleState {
     article?: ArticleModel;
     comments?: CommentModel[];
     commentErrors?: string;
     currentUser?: ProfileModel;
-  }
+}
+export interface HomeState {
+    tags?: string[];
+}
 export interface ArticleListState {
     articles?: ArticleModel[];
     articlesCount?: number;
@@ -81,5 +111,6 @@ export interface ListOfTags {
     tags: string[]
 }
 export interface RouterMatchModel {
-    match: { params: { id?: string } }
+    match: { params: { id?: string, username?: string, slug?: string } }
 }
+

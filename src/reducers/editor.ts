@@ -7,8 +7,9 @@ import {
   REMOVE_TAG,
   UPDATE_FIELD_EDITOR
 } from '../constants/actionTypes';
+import { EditorState } from '../models';
 
-export default (state = {}, action) => {
+export default (state:EditorState = {}, action) => {
   switch (action.type) {
     case EDITOR_PAGE_LOADED:
       return {
@@ -35,7 +36,7 @@ export default (state = {}, action) => {
       break;
     case ADD_TAG:
       return {
-        ...state,
+        ...state, 
         tagList: state.tagList.concat([state.tagInput]),
         tagInput: ''
       };

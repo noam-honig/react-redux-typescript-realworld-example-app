@@ -2,40 +2,41 @@ import { Link } from 'react-router-dom';
 import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
-import { connect } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import {
   UPDATE_FIELD_AUTH,
   REGISTER,
   REGISTER_PAGE_UNLOADED
 } from '../constants/actionTypes';
+import { StateModel } from '../models';
 
-const mapStateToProps = state => ({ ...state.auth });
+const mapStateToProps = (state: StateModel) => ({ ...state.auth });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = ({
   onChangeEmail: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'email', value }),
+    ({ type: UPDATE_FIELD_AUTH, key: 'email', value }),
   onChangePassword: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'password', value }),
+    ({ type: UPDATE_FIELD_AUTH, key: 'password', value }),
   onChangeUsername: value =>
-    dispatch({ type: UPDATE_FIELD_AUTH, key: 'username', value }),
+    ({ type: UPDATE_FIELD_AUTH, key: 'username', value }),
   onSubmit: (username, email, password) => {
     const payload = agent.Auth.register(username, email, password);
-    dispatch({ type: REGISTER, payload })
+    return ({ type: REGISTER, payload })
   },
   onUnload: () =>
-    dispatch({ type: REGISTER_PAGE_UNLOADED })
+    ({ type: REGISTER_PAGE_UNLOADED })
 });
-
-class Register extends React.Component {
-  constructor() {
-    super();
-    this.changeEmail = ev => this.props.onChangeEmail(ev.target.value);
-    this.changePassword = ev => this.props.onChangePassword(ev.target.value);
-    this.changeUsername = ev => this.props.onChangeUsername(ev.target.value);
-    this.submitForm = (username, email, password) => ev => {
-      ev.preventDefault();
-      this.props.onSubmit(username, email, password);
-    }
+const connector = connect(mapStateToProps, mapDispatchToProps);
+class Register extends React.Component<ConnectedProps<typeof connector>> {
+  constructor(p) {
+    super(p);
+  }
+  changeEmail = ev => this.props.onChangeEmail(ev.target.value);
+  changePassword = ev => this.props.onChangePassword(ev.target.value);
+  changeUsername = ev => this.props.onChangeUsername(ev.target.value);
+  submitForm = (username, email, password) => ev => {
+    ev.preventDefault();
+    this.props.onSubmit(username, email, password);
   }
 
   componentWillUnmount() {
@@ -110,4 +111,4 @@ class Register extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Register);
+export default connector(Register);

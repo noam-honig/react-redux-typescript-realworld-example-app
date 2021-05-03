@@ -1,7 +1,11 @@
 import React from 'react';
 import agent from '../../agent';
+import { articleList } from '../../reducers/articleList';
 
-const Tags = props => {
+const Tags = (props: {
+  onClickTag: typeof articleList.applyTagFilter,
+  tags: string[]
+}) => {
   const tags = props.tags;
   if (tags) {
     return (
@@ -10,7 +14,12 @@ const Tags = props => {
           tags.map(tag => {
             const handleClick = ev => {
               ev.preventDefault();
-              props.onClickTag(tag, page => agent.Articles.byTag(tag, page), agent.Articles.byTag(tag));
+              agent.Articles.byTag(tag).then(articles =>
+                props.onClickTag({
+                  tag,
+                  pager: page => agent.Articles.byTag(tag, page),
+                  articles
+                }))
             };
 
             return (

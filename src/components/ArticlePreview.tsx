@@ -1,24 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import agent from '../agent';
-import { connect } from 'react-redux';
-import { ARTICLE_FAVORITED, ARTICLE_UNFAVORITED } from '../constants/actionTypes';
+import { connect, ConnectedProps } from 'react-redux';
+import { articleList } from '../reducers/articleList';
+import { ArticleModel } from '../models';
 
 const FAVORITED_CLASS = 'btn btn-sm btn-primary';
 const NOT_FAVORITED_CLASS = 'btn btn-sm btn-outline-primary';
 
-const mapDispatchToProps = dispatch => ({
-  favorite: slug => dispatch({
-    type: ARTICLE_FAVORITED,
-    payload: agent.Articles.favorite(slug)
-  }),
-  unfavorite: slug => dispatch({
-    type: ARTICLE_UNFAVORITED,
-    payload: agent.Articles.unfavorite(slug)
-  })
+const mapDispatchToProps = ({
+
+  refreshFavorite: articleList.refreshArticleFavorited
 });
 
-const ArticlePreview = props => {
+const connector = connect(() => ({}), mapDispatchToProps);
+const ArticlePreview = (props: ConnectedProps<typeof connector> & { article: ArticleModel }) => {
   const article = props.article;
   const favoriteButtonClass = article.favorited ?
     FAVORITED_CLASS :
@@ -27,9 +23,10 @@ const ArticlePreview = props => {
   const handleClick = ev => {
     ev.preventDefault();
     if (article.favorited) {
-      props.unfavorite(article.slug);
+      agent.Articles.unfavorite(article.slug).then(article => props.refreshFavorite(article))
+
     } else {
-      props.favorite(article.slug);
+      agent.Articles.favorite(article.slug).then(article => props.refreshFavorite(article))
     }
   };
 
@@ -76,4 +73,4 @@ const ArticlePreview = props => {
   );
 }
 
-export default connect(() => ({}), mapDispatchToProps)(ArticlePreview);
+export default connector(ArticlePreview);
