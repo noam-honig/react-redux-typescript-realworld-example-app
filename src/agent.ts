@@ -46,19 +46,19 @@ const Tags = {
   getAll: () => requests.get<ListOfTags>('/tags')
 };
 
-const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0} `;
+const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
 const omitSlug = article => Object.assign({}, article, { slug: undefined })
 const Articles = {
   all: (page?: number) =>
-    requests.get<MultipleArticlesModel>(`/articles?${limit(10, page)} `),
+    requests.get<MultipleArticlesModel>(`/articles?${limit(10, page)}`),
   byAuthor: (author: string, page?: number) =>
-    requests.get<MultipleArticlesModel>(`/articles?author=${encode(author)}& ${limit(5, page)}`),
+    requests.get<MultipleArticlesModel>(`/articles?author=${encode(author)}&${limit(5, page)}`),
   byTag: (tag: string, page?: number) =>
-    requests.get<MultipleArticlesModel>(`/articles?tag=${encode(tag)}& ${limit(10, page)}`),
+    requests.get<MultipleArticlesModel>(`/articles?tag=${encode(tag)}&${limit(10, page)}`),
   del: (slug: string) =>
-    requests.del(`/articles/${slug} `),
+    requests.del(`/articles/${slug}`),
   favorite: (slug: string) =>
-    requests.post<SingleArticle>(`/articles/ ${slug} /favorite`, {}),
+    requests.post<SingleArticle>(`/articles/${slug}/favorite`, {}),
   favoritedBy: (author: string, page?: number) =>
     requests.get<MultipleArticlesModel>(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
   feed: () =>
