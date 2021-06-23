@@ -1,7 +1,6 @@
 import React from 'react';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import { ADD_COMMENT } from '../../constants/actionTypes';
 import { addComment } from '../../reducers/article';
 import { ProfileModel } from '../../models';
 

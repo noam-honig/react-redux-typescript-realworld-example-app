@@ -1,19 +1,23 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { HOME_PAGE_LOADED, HOME_PAGE_UNLOADED } from '../constants/actionTypes';
-import { HomeState } from '../models';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+import { HomeState, ListOfTags, MultipleArticlesModel, Pager } from '../models';
 
 
 const slice = createSlice({
   name: 'home',
   initialState: {} as HomeState,
-  reducers: {},
-  extraReducers: builder => {
-    builder.addCase(HOME_PAGE_LOADED, (state, action) => ({
+  reducers: {
+    homePageLoaded: (state, action: PayloadAction<{
+      tab: string,
+      pager: Pager,
+      articles: MultipleArticlesModel,
+      tags: ListOfTags
+    }>) => ({
       ...state,
       tags: action.payload.tags.tags
-    }));
-    builder.addCase(HOME_PAGE_UNLOADED, () => ({}));
+    }),
+    homePageUnloaded: () => ({})
   }
 });
-
+export const homeActions = slice.actions;
 export default slice.reducer;

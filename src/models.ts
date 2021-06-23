@@ -67,27 +67,27 @@ export interface StateModel {
     home: HomeState;
     articleList: ArticleListState;
     profile: ProfileModel;
-    editor: EditorState,
-    auth: {
-        username: string,
-        email: string,
-        password: string,
-        inProgress: boolean
-        errors: any
-    }
-    & ArticleModel,
+    editor: EditorState;
+    auth:AuthState;
     settings: {
-        errors:{},
-        currentUser:UserModel
+        errors: {},
+        currentUser: UserModel
 
     }
 };
-export interface EditorState extends ArticleModel{
+export interface AuthState {
+    username?: string,
+    email?: string,
+    password?: string,
+    inProgress?: boolean
+    errors?: any
+}
+export interface EditorState extends ArticleModel {
     articleSlug?: string,
     tagInput?: string,
     inProgress?: boolean,
     errors?: any
-} 
+}
 export interface ArticleState {
     article?: ArticleModel;
     comments?: CommentModel[];

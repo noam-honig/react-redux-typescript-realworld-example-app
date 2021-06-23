@@ -1,3 +1,5 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { string } from 'prop-types';
 import {
   LOGIN,
   REGISTER,
@@ -6,7 +8,34 @@ import {
   ASYNC_START,
   UPDATE_FIELD_AUTH
 } from '../constants/actionTypes';
+import { AuthState, SingleUser } from '../models';
 
+const slice = createSlice({
+  name: 'auth',
+  initialState: {} as AuthState,
+  reducers: {
+    updateField: (state, action: PayloadAction<{
+      key: string,
+      value: string
+    }>) => ({
+      ...state, [action.payload.key]: action.payload.value
+    }),
+    login: (state, action: PayloadAction<SingleUser>) => ({
+      ...state,
+      inProgress: false
+    }),
+    error: (state, action) => {
+      return ({
+        ...state,
+        inProgress: false,
+        errors: action.payload.response.body.errors
+      });
+    }
+
+
+  }
+});
+export const authActions = slice.actions;
 export default (state = {}, action) => {
   switch (action.type) {
     case LOGIN:
@@ -27,7 +56,7 @@ export default (state = {}, action) => {
     case UPDATE_FIELD_AUTH:
       return { ...state, [action.key]: action.value };
     default:
-      return state;
+      return slice.reducer(state, action);
   }
 
   return state;

@@ -1,7 +1,6 @@
 import React from 'react';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import { DELETE_COMMENT } from '../../constants/actionTypes';
 import { deleteComment } from '../../reducers/article';
 
 const mapDispatchToProps = ({

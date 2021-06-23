@@ -2,14 +2,6 @@ import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import {
-  ADD_TAG,
-  EDITOR_PAGE_LOADED,
-  REMOVE_TAG,
-  ARTICLE_SUBMITTED,
-  EDITOR_PAGE_UNLOADED,
-  UPDATE_FIELD_EDITOR
-} from '../constants/actionTypes';
 import { RouterMatchModel, StateModel } from '../models';
 import { editorActions } from '../reducers/editor';
 
@@ -27,7 +19,7 @@ const mapDispatchToProps = ({
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
-  
+
   updateFieldEvent =
     key => ev => this.props.onUpdateField({ key, value: ev.target.value });
   changeTitle = this.updateFieldEvent('title');

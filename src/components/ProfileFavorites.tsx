@@ -3,14 +3,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import agent from '../agent';
 import { connect } from 'react-redux';
-import {
-  PROFILE_PAGE_LOADED,
-  PROFILE_PAGE_UNLOADED
-} from '../constants/actionTypes';
+import { profileActions } from '../reducers/profile';
+
 
 const mapDispatchToProps = ({
-  onLoad: PROFILE_PAGE_LOADED,
-  onUnload: PROFILE_PAGE_UNLOADED
+  onLoad: profileActions.profilePageLoaded,
+  onUnload: profileActions.profilePageUnloaded
 });
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

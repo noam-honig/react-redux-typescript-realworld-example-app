@@ -9,16 +9,17 @@ import {
   LOGIN_PAGE_UNLOADED
 } from '../constants/actionTypes';
 import { StateModel } from '../models';
+import { authActions } from '../reducers/auth';
 
-const mapStateToProps = (state:StateModel) => ({ ...state.auth });
+const mapStateToProps = (state: StateModel) => ({ ...state.auth });
 
-const mapDispatchToProps =  ({
+const mapDispatchToProps = ({
   onChangeEmail: value =>
-    ({ type: UPDATE_FIELD_AUTH, key: 'email', value }),
+    authActions.updateField({ key: 'email', value }),
   onChangePassword: value =>
-    ({ type: UPDATE_FIELD_AUTH, key: 'password', value }),
-  onSubmit: (email, password) =>
-    ({ type: LOGIN, payload: agent.Auth.login(email, password) }),
+    authActions.updateField({ key: 'password', value }),
+  onSubmit: authActions.login,
+  onError: authActions.error,
   onUnload: () =>
     ({ type: LOGIN_PAGE_UNLOADED })
 });
@@ -31,7 +32,8 @@ class Login extends React.Component<ConnectedProps<typeof connector>> {
   changePassword = ev => this.props.onChangePassword(ev.target.value);
   submitForm = (email, password) => ev => {
     ev.preventDefault();
-    this.props.onSubmit(email, password);
+    agent.Auth.login(email, password).then(this.props.onSubmit,
+      this.props.onError);
   };
 
   componentWillUnmount() {

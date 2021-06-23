@@ -1,12 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import {
-  HOME_PAGE_LOADED,
-  HOME_PAGE_UNLOADED,
-  PROFILE_PAGE_LOADED,
-  PROFILE_PAGE_UNLOADED
-} from '../constants/actionTypes';
-import { ArticleListState, MultipleArticlesModel, Pager,  SingleArticle } from '../models';
+import { ArticleListState, MultipleArticlesModel, Pager, SingleArticle } from '../models';
+import { homeActions } from './home';
+import { profileActions } from './profile';
 
 
 
@@ -62,11 +58,10 @@ const slice = createSlice({
       currentPage: 0,
       tag: null
     }),
-
   }
   ,
   extraReducers: builder => {
-    builder.addCase(HOME_PAGE_LOADED, (state, action) => ({
+    builder.addCase(homeActions.homePageLoaded, (state, action) => ({
       ...state,
       pager: action.payload.pager,
       tags: action.payload.tags.tags,
@@ -75,15 +70,15 @@ const slice = createSlice({
       currentPage: 0,
       tab: action.payload.tab
     }));
-    builder.addCase(HOME_PAGE_UNLOADED, () => ({}))
-    builder.addCase(PROFILE_PAGE_LOADED, (state, action) => ({
+    builder.addCase(homeActions.homePageUnloaded, () => ({}))
+    builder.addCase(profileActions.profilePageLoaded, (state, action) => ({
       ...state,
       pager: action.payload.pager,
       articles: action.payload.data[1].articles,
       articlesCount: action.payload.data[1].articlesCount,
       currentPage: 0
     }));
-    builder.addCase(PROFILE_PAGE_UNLOADED, (state) => ({}));
+    builder.addCase(profileActions.profilePageUnloaded, (state) => ({}));
 
   }
 });

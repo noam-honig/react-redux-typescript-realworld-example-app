@@ -4,13 +4,9 @@ import React from 'react';
 import Tags from './Tags';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import {
-  HOME_PAGE_LOADED,
-  HOME_PAGE_UNLOADED,
-  APPLY_TAG_FILTER
-} from '../../constants/actionTypes';
 import { HomeState, StateModel } from '../../models';
 import { articleListActions } from '../../reducers/articleList';
+import { homeActions } from '../../reducers/home';
 
 const Promise = global.Promise;
 
@@ -21,9 +17,9 @@ const mapStateToProps = (state: StateModel) => ({
 });
 
 const mapDispatchToProps = ({
-  onClickTag:articleListActions.applyTagFilter,
-  onLoad: HOME_PAGE_LOADED,
-  onUnload: HOME_PAGE_UNLOADED
+  onClickTag: articleListActions.applyTagFilter,
+  onLoad: homeActions.homePageLoaded,
+  onUnload: homeActions.homePageUnloaded
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Home extends React.Component<ConnectedProps<typeof connector> & HomeState> {
@@ -55,7 +51,7 @@ class Home extends React.Component<ConnectedProps<typeof connector> & HomeState>
 
         <div className="container page">
           <div className="row">
-            <MainView /> 
+            <MainView />
 
             <div className="col-md-3">
               <div className="sidebar">
