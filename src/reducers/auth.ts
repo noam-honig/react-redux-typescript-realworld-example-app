@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { string } from 'prop-types';
 import {
-  LOGIN,
   REGISTER,
   LOGIN_PAGE_UNLOADED,
   REGISTER_PAGE_UNLOADED,
@@ -24,6 +23,9 @@ const slice = createSlice({
       ...state,
       inProgress: false
     }),
+    startRequest: (state) => ({
+      ...state, inProgress: true
+    }),
     error: (state, action) => {
       return ({
         ...state,
@@ -38,7 +40,6 @@ const slice = createSlice({
 export const authActions = slice.actions;
 export default (state = {}, action) => {
   switch (action.type) {
-    case LOGIN:
     case REGISTER:
       return {
         ...state,
@@ -49,7 +50,7 @@ export default (state = {}, action) => {
     case REGISTER_PAGE_UNLOADED:
       return {};
     case ASYNC_START:
-      if (action.subtype === LOGIN || action.subtype === REGISTER) {
+      if ( action.subtype === REGISTER) {
         return { ...state, inProgress: true };
       }
       break;

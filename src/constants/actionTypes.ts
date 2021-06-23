@@ -18,7 +18,7 @@ export const SETTINGS_PAGE_UNLOADED = 'SETTINGS_PAGE_UNLOADED';
 
 export const CHANGE_TAB = 'CHANGE_TAB';
 
-export const LOGIN = 'LOGIN';
+
 export const LOGOUT = 'LOGOUT';
 export const REGISTER = 'REGISTER';
 export const LOGIN_PAGE_UNLOADED = 'LOGIN_PAGE_UNLOADED';

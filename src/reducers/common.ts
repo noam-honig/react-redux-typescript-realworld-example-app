@@ -3,7 +3,6 @@ import {
   REDIRECT,
   LOGOUT,
   SETTINGS_SAVED,
-  LOGIN,
   REGISTER,
   DELETE_ARTICLE,
 
@@ -13,6 +12,7 @@ import {
   REGISTER_PAGE_UNLOADED
 } from '../constants/actionTypes';
 import { articlePageUnLoaded } from './article';
+import { authActions } from './auth';
 import { editorActions } from './editor';
 import { homeActions } from './home';
 import { profileActions } from './profile';
@@ -46,7 +46,7 @@ export default (state = defaultState, action) => {
         redirectTo: action.error ? null : '/',
         currentUser: action.error ? null : action.payload.user
       };
-    case LOGIN:
+    case authActions.login.type: 
     case REGISTER:
       return {
         ...state,

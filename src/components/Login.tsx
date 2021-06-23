@@ -4,8 +4,6 @@ import React from 'react';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import {
-  UPDATE_FIELD_AUTH,
-  LOGIN,
   LOGIN_PAGE_UNLOADED
 } from '../constants/actionTypes';
 import { StateModel } from '../models';
@@ -18,6 +16,7 @@ const mapDispatchToProps = ({
     authActions.updateField({ key: 'email', value }),
   onChangePassword: value =>
     authActions.updateField({ key: 'password', value }),
+  onStartRequest:authActions.startRequest,
   onSubmit: authActions.login,
   onError: authActions.error,
   onUnload: () =>
@@ -32,6 +31,7 @@ class Login extends React.Component<ConnectedProps<typeof connector>> {
   changePassword = ev => this.props.onChangePassword(ev.target.value);
   submitForm = (email, password) => ev => {
     ev.preventDefault();
+    this.props.onStartRequest();
     agent.Auth.login(email, password).then(this.props.onSubmit,
       this.props.onError);
   };
@@ -50,7 +50,7 @@ class Login extends React.Component<ConnectedProps<typeof connector>> {
 
             <div className="col-md-6 offset-md-3 col-xs-12">
               <h1 className="text-xs-center">Sign In</h1>
-              <p className="text-xs-center">
+              <p className="text-xs-center"> 
                 <Link to="/register">
                   Need an account?
                 </Link>
