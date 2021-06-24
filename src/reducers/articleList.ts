@@ -57,7 +57,8 @@ const slice = createSlice({
       tab: action.payload.tab,
       currentPage: 0,
       tag: null
-    }),
+    })
+    
   }
   ,
   extraReducers: builder => {

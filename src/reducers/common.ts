@@ -1,71 +1,76 @@
-import {
-  APP_LOAD,
-  REDIRECT,
-  LOGOUT,
-  SETTINGS_SAVED,
-  REGISTER,
-  DELETE_ARTICLE,
-
-  PROFILE_FAVORITES_PAGE_UNLOADED,
-  SETTINGS_PAGE_UNLOADED,
-  LOGIN_PAGE_UNLOADED,
-  REGISTER_PAGE_UNLOADED
-} from '../constants/actionTypes';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { CommonState, SingleUser } from '../models';
 import { articlePageUnLoaded } from './article';
 import { authActions } from './auth';
 import { editorActions } from './editor';
 import { homeActions } from './home';
 import { profileActions } from './profile';
+import { settingsActions } from './settings';
 
-const defaultState = {
-  appName: 'Conduit',
-  token: null,
-  viewChangeCounter: 0
-};
 
-export default (state = defaultState, action) => {
 
-  switch (action.type) {
-    case APP_LOAD:
-      return {
-        ...state,
-        token: action.token || null,
-        appLoaded: true,
-        currentUser: action.payload ? action.payload.user : null
-      };
-    case REDIRECT:
-      return { ...state, redirectTo: null };
-    case LOGOUT:
-      return { ...state, redirectTo: '/', token: null, currentUser: null };
-    case editorActions.articleSubmitted.type:
+const slice = createSlice({
+  name: 'common',
+  initialState: {
+    appName: 'Conduit',
+    token: null,
+    viewChangeCounter: 0
+  } as CommonState,
+  reducers: {
+    deleteArticle: (state) => ({
+      ...state,
+      redirectTo: '/'
+    }),
+    appLoad: (state, action: PayloadAction<{
+      token: string,
+      user: SingleUser
+    }>) => ({
+      ...state,
+      token: action.payload.token || null,
+      appLoaded: true,
+      currentUser: action.payload ? action.payload.user.user : null
+    }),
+    redirect: (state) => ({
+      ...state,
+      redirectTo: null
+    }),
+    logout: (state) => ({
+      ...state, redirectTo: '/', token: null, currentUser: null
+    })
+  },
+  extraReducers: add => {
+    add.addCase(editorActions.articleSubmitted, (state, action) => {
       const redirectUrl = `/article/${action.payload.article.slug}`;
       return { ...state, redirectTo: redirectUrl };
-    case SETTINGS_SAVED:
-      return {
+    });
+    add.addCase(settingsActions.settingsSaved, (state, action) => ({
+      ...state,
+      redirectTo: '/',
+      currentUser: action.payload.user
+    }));
+    for (const action of [authActions.login, authActions.register]) {
+      add.addCase(action, (state, action) => ({
         ...state,
-        redirectTo: action.error ? null : '/',
-        currentUser: action.error ? null : action.payload.user
-      };
-    case authActions.login.type: 
-    case REGISTER:
-      return {
-        ...state,
-        redirectTo: action.error ? null : '/',
-        token: action.error ? null : action.payload.user.token,
-        currentUser: action.error ? null : action.payload.user
-      };
-    case DELETE_ARTICLE:
-      return { ...state, redirectTo: '/' };
-    case articlePageUnLoaded.type:
-    case editorActions.editorPageUnLoaded.type:
-    case homeActions.homePageUnloaded.type:
-    case profileActions.profilePageUnloaded.type:
-    case PROFILE_FAVORITES_PAGE_UNLOADED:
-    case SETTINGS_PAGE_UNLOADED:
-    case LOGIN_PAGE_UNLOADED:
-    case REGISTER_PAGE_UNLOADED:
-      return { ...state, viewChangeCounter: state.viewChangeCounter + 1 };
-    default:
-      return state;
+        redirectTo: '/',
+        token: action.payload.user.token,
+        currentUser: action.payload.user
+      }))
+    }
+    for (const action of [
+      articlePageUnLoaded
+      , editorActions.editorPageUnLoaded
+      , homeActions.homePageUnloaded
+      , profileActions.profilePageUnloaded
+      , settingsActions.settingsPageUnloaded
+      , authActions.loginPageUnloaded
+      , authActions.registerPageUnload
+    ]) {
+      add.addCase(action, (state) => ({
+        ...state, viewChangeCounter: state.viewChangeCounter + 1
+      }))
+    }
   }
-};
+});
+export default slice.reducer;
+export const commonActions = slice.actions;
+

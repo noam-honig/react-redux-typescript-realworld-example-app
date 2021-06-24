@@ -1,11 +1,10 @@
 import agent from './agent';
 import {
   ASYNC_START,
-  ASYNC_END,
-  LOGOUT,
-  REGISTER
+  ASYNC_END
 } from './constants/actionTypes';
 import { authActions } from './reducers/auth';
+import { commonActions } from './reducers/common';
 
 const promiseMiddleware = store => next => action => {
   if (isPromise(action.payload)) {
@@ -47,12 +46,12 @@ const promiseMiddleware = store => next => action => {
 };
 
 const localStorageMiddleware = store => next => action => {
-  if (action.type === REGISTER || action.type === authActions.login.type) {
+  if (action.type === authActions.register.type || action.type === authActions.login.type) {
     if (!action.error) {
       window.localStorage.setItem('jwt', action.payload.user.token);
       agent.setToken(action.payload.user.token);
     }
-  } else if (action.type === LOGOUT) {
+  } else if (action.type === commonActions.logout) {
     window.localStorage.setItem('jwt', '');
     agent.setToken(null);
   }

@@ -15,7 +15,9 @@ const mapDispatchToProps = ({
   onRemoveTag: editorActions.removeTag,
   onSubmit: editorActions.articleSubmitted,
   onUnload: editorActions.editorPageUnLoaded,
-  onUpdateField: editorActions.updateFieldEditor
+  onUpdateField: editorActions.updateFieldEditor,
+  startRequest: editorActions.startRequest,
+  error: editorActions.error
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
@@ -51,7 +53,8 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
     const promise = this.props.articleSlug ?
       agent.Articles.update(Object.assign(article, slug)) :
       agent.Articles.create(article);
-    promise.then(this.props.onSubmit);
+    this.props.startRequest();
+    promise.then(this.props.onSubmit, this.props.error);
   };
 
   componentWillReceiveProps(nextProps) {

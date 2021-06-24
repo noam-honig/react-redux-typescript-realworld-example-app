@@ -2,24 +2,15 @@ import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import {
-  SETTINGS_SAVED,
-  SETTINGS_PAGE_UNLOADED,
-  LOGOUT
-} from '../constants/actionTypes';
-import { StateModel, UserModel } from '../models';
+
+import { SettingsFormsState, StateModel, UserModel } from '../models';
+import { settingsActions } from '../reducers/settings';
+import common, { commonActions } from '../reducers/common';
 
 class SettingsForm extends React.Component<{
   currentUser: UserModel,
-  onSubmitForm: any
-}, {
-  password: string,
-  image: string,
-  username: string,
-  bio: string,
-  email: string,
-  inProgress?: boolean
-}> {
+  onSubmitForm: (user: SettingsFormsState) => void
+}, SettingsFormsState> {
   constructor(p) {
     super(p);
 
@@ -41,12 +32,17 @@ class SettingsForm extends React.Component<{
   submitForm = ev => {
     ev.preventDefault();
 
-    const user = Object.assign({}, this.state);
-    // if (!user.password) {
-    //   delete user.password;
-    // }
+    const user = {};
+    for (const key in this.state) {
+      if (Object.prototype.hasOwnProperty.call(this.state, key)) {
+        const element = this.state[key];
+        if (!element && key == 'password')
+          continue;
+        user[key] = element;
 
-    this.props.onSubmitForm(user);
+      }
+    }
+    this.props.onSubmitForm(user as SettingsFormsState);
   };
 
   componentWillMount() {
@@ -141,15 +137,22 @@ const mapStateToProps = (state: StateModel) => ({
 });
 
 const mapDispatchToProps = ({
-  onClickLogout: () => ({ type: LOGOUT }),
-  onSubmitForm: user =>
-    ({ type: SETTINGS_SAVED, payload: agent.Auth.save(user) }),
-  onUnload: () => ({ type: SETTINGS_PAGE_UNLOADED })
+  onClickLogout: () => commonActions.logout,
+  onSubmitForm: settingsActions.settingsSaved,
+  onUnload: () => settingsActions.settingsPageUnloaded,
+  onStartRequest: settingsActions.startRequest,
+  onError: settingsActions.error,
+
 });
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Settings extends React.Component<ConnectedProps<typeof connector>> {
   render() {
+    let submitForm = (state: SettingsFormsState) => {
+      this.props.onStartRequest();
+      agent.Auth.save(state as UserModel).then(this.props.onSubmitForm, this.props.errors);
+
+    }
     return (
       <div className="settings-page">
         <div className="container page">
@@ -162,7 +165,7 @@ class Settings extends React.Component<ConnectedProps<typeof connector>> {
 
               <SettingsForm
                 currentUser={this.props.currentUser}
-                onSubmitForm={this.props.onSubmitForm} />
+                onSubmitForm={submitForm} />
 
               <hr />
 

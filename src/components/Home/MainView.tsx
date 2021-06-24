@@ -2,7 +2,7 @@ import ArticleList from '../ArticleList';
 import React from 'react';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import { CHANGE_TAB } from '../../constants/actionTypes';
+
 import { StateModel } from '../../models';
 import { articleListActions } from '../../reducers/articleList';
 

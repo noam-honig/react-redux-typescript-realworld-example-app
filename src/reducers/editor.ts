@@ -1,7 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  ASYNC_START
-} from '../constants/actionTypes';
 import { EditorState, SingleArticle } from '../models';
 
 const slice = createSlice({
@@ -20,7 +17,7 @@ const slice = createSlice({
     })
     ,
     editorPageUnLoaded: (state) => ({}),
-    articleSubmitted: (state) => ({
+    articleSubmitted: (state, action: PayloadAction<SingleArticle>) => ({
       ...state,
       inProgress: null
     }),
@@ -36,21 +33,18 @@ const slice = createSlice({
     updateFieldEditor: (state, action: PayloadAction<{ key: string, value: string }>) => (
       {
         ...state, [action.payload.key]: action.payload.value
-      })
+      }),
+    startRequest: (state) => ({
+      ...state, inProgress: true
+    }),
+    error: (state, action) => {
+      return ({
+        ...state,
+        inProgress: false,
+        errors: action.payload.response.body.errors
+      });
+    },
   }
 })
 export const editorActions = slice.actions;
-
-export default (state: EditorState = {}, action) => {
-  switch (action.type) {
-
-    case ASYNC_START:
-      if (action.subtype === editorActions.articleSubmitted.type) {
-        return { ...state, inProgress: true };
-      }
-      break;
-  }
-
-  return slice.reducer(state, action);
-}
-
+export default slice.reducer;

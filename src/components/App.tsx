@@ -2,7 +2,7 @@ import agent from '../agent';
 import Header from './Header';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { APP_LOAD, REDIRECT } from '../constants/actionTypes';
+
 import { Route, Switch } from 'react-router-dom';
 import Article from './Article';
 import Editor from './Editor';
@@ -14,24 +14,24 @@ import Register from './Register';
 import Settings from './Settings';
 import { store } from '../store';
 import { push } from 'react-router-redux';
-import { StateModel } from '../models';
+import { SingleUser, StateModel } from '../models';
+import { commonActions } from '../reducers/common';
 
-const mapStateToProps = (state:StateModel) => {
+const mapStateToProps = (state: StateModel) => {
   return {
     appLoaded: state.common.appLoaded,
     appName: state.common.appName,
     currentUser: state.common.currentUser,
     redirectTo: state.common.redirectTo
-  }};
+  }
+};
 
-const mapDispatchToProps =  ({
-  onLoad: (payload, token) =>
-    ({ type: APP_LOAD, payload, token, skipTracking: true }),
-  onRedirect: () =>
-    ({ type: REDIRECT })
+const mapDispatchToProps = ({
+  onLoad: commonActions.appLoad,
+  onRedirect: commonActions.redirect
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
-class App extends React.Component<ConnectedProps< typeof connector>> {
+class App extends React.Component<ConnectedProps<typeof connector>> {
   componentWillReceiveProps(nextProps) {
     if (nextProps.redirectTo) {
       // this.context.router.replace(nextProps.redirectTo);
@@ -45,8 +45,10 @@ class App extends React.Component<ConnectedProps< typeof connector>> {
     if (token) {
       agent.setToken(token);
     }
-
-    this.props.onLoad(token ? agent.Auth.current() : null, token);
+    let promise: Promise<SingleUser> = Promise.resolve(undefined);;
+    if (token)
+      promise = agent.Auth.current();
+    promise.then(user => this.props.onLoad({ user: user, token }))
   }
 
   render() {
@@ -56,8 +58,8 @@ class App extends React.Component<ConnectedProps< typeof connector>> {
           <Header
             appName={this.props.appName}
             currentUser={this.props.currentUser} />
-            <Switch>
-            <Route exact path="/" component={Home}/>
+          <Switch>
+            <Route exact path="/" component={Home} />
             <Route path="/login" component={Login} />
             <Route path="/register" component={Register} />
             <Route path="/editor/:slug" component={Editor} />
@@ -66,7 +68,7 @@ class App extends React.Component<ConnectedProps< typeof connector>> {
             <Route path="/settings" component={Settings} />
             <Route path="/@:username/favorites" component={ProfileFavorites} />
             <Route path="/@:username" component={Profile} />
-            </Switch>
+          </Switch>
         </div>
       );
     }

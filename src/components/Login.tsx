@@ -3,9 +3,6 @@ import ListErrors from './ListErrors';
 import React from 'react';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import {
-  LOGIN_PAGE_UNLOADED
-} from '../constants/actionTypes';
 import { StateModel } from '../models';
 import { authActions } from '../reducers/auth';
 
@@ -16,11 +13,10 @@ const mapDispatchToProps = ({
     authActions.updateField({ key: 'email', value }),
   onChangePassword: value =>
     authActions.updateField({ key: 'password', value }),
-  onStartRequest:authActions.startRequest,
   onSubmit: authActions.login,
+  onStartRequest: authActions.startRequest,
   onError: authActions.error,
-  onUnload: () =>
-    ({ type: LOGIN_PAGE_UNLOADED })
+  onUnload: authActions.loginPageUnloaded
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Login extends React.Component<ConnectedProps<typeof connector>> {
@@ -50,7 +46,7 @@ class Login extends React.Component<ConnectedProps<typeof connector>> {
 
             <div className="col-md-6 offset-md-3 col-xs-12">
               <h1 className="text-xs-center">Sign In</h1>
-              <p className="text-xs-center"> 
+              <p className="text-xs-center">
                 <Link to="/register">
                   Need an account?
                 </Link>

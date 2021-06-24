@@ -25,8 +25,17 @@ export interface UserModel {
     token: string,
     username: string,
     bio: string,
-    image: string
+    image: string,
+    password: string
 
+}
+export interface SettingsFormsState {
+    email: string;
+    username: string;
+    bio: string;
+    image: string;
+    password: string;
+    inProgress?: boolean;
 }
 export interface SingleUser {
     user: UserModel
@@ -57,24 +66,27 @@ export interface MultipleComments {
 
 export interface StateModel {
     article: ArticleState;
-    common: {
-        currentUser: UserModel,
-        appName: string,
-        token: string,
-        appLoaded: boolean,
-        redirectTo: string
-    };
+    common: CommonState;
     home: HomeState;
     articleList: ArticleListState;
     profile: ProfileModel;
     editor: EditorState;
-    auth:AuthState;
-    settings: {
-        errors: {},
-        currentUser: UserModel
-
-    }
+    auth: AuthState;
+    settings: SettingsState;
 };
+export interface CommonState {
+    currentUser?: UserModel;
+    appName?: string;
+    token?: string;
+    appLoaded?: boolean;
+    redirectTo?: string;
+    viewChangeCounter?:number;
+}
+export interface SettingsState {
+    inProgress?: boolean;
+    errors?: any;
+    currentUser?: SettingsFormsState;
+}
 export interface AuthState {
     username?: string,
     email?: string,

@@ -3,11 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import {
-  FOLLOW_USER,
-  UNFOLLOW_USER
 
-} from '../constants/actionTypes';
 import { ProfileModel, RouterMatchModel, StateModel } from '../models';
 import { profileActions } from '../reducers/profile';
 
@@ -71,10 +67,6 @@ const mapStateToProps = (state: StateModel) => ({
 const mapDispatchToProps = ({
   refreshProfile: profileActions.refreshProfile,
   onLoad: profileActions.profilePageLoaded,
-  onUnfollow: username => ({
-    type: UNFOLLOW_USER,
-    payload: agent.Profile.unfollow(username)
-  }),
   onUnload: profileActions.profilePageUnloaded
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
