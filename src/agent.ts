@@ -4,6 +4,8 @@ import { ListOfTags, MultipleArticlesModel, MultipleComments, SingleArticle, Sin
 import { CommentModel } from "./models/CommentModel";
 import { UserModel } from "./models/UserModel";
 import { ArticleModel } from "./models/ArticleModel";
+import { Context } from '@remult/core';
+import { ProfileEntity } from './models/ProfileModel';
 
 const superagent = superagentPromise(_superagent, global.Promise);
 
@@ -15,9 +17,31 @@ const responseBody = res => res.body;
 let token = null;
 const tokenPlugin = req => {
   if (token) {
-    req.set('authorization', `Token ${token}`);
+    req.set('Authorization', `Bearer ${token}`);
   }
 }
+
+
+const context = new Context({
+  delete: (url: string) =>
+    superagent.del(`/${url}`).use(tokenPlugin).then(responseBody),
+  get: (url: string) =>
+    superagent.get(`/${url}`).use(tokenPlugin).then(responseBody),
+  put: (url: string, body: any) =>
+    superagent.put(`/${url}`, body).use(tokenPlugin),
+  post: async (url: string, body: any) => {
+    return new Promise(async (res, err) => {
+      try {
+        let r = await superagent.post(`/${url}`, body).use(tokenPlugin).then(responseBody);
+        res(r);
+      }
+      catch (x) {
+        err({ error: x.response.body });
+      }
+    });
+  }
+});
+
 
 class requests {
   static del<T>(url): Promise<T> {
@@ -64,8 +88,8 @@ const Articles = {
     requests.post<SingleArticle>(`/articles/${slug}/favorite`, {}),
   favoritedBy: (author: string, page?: number) =>
     requests.get<MultipleArticlesModel>(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
-  feed: (page?:number) =>
-    requests.get<MultipleArticlesModel>('/articles/feed?'+limit(10, page)),
+  feed: (page?: number) =>
+    requests.get<MultipleArticlesModel>('/articles/feed?' + limit(10, page)),
   get: (slug: string) =>
     requests.get<SingleArticle>(`/articles/${slug}`),
   unfavorite: (slug: string) =>
