@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import agent from '../agent';
 import { CommonState, SingleUser } from '../models';
 import { articleActions } from './article';
 
@@ -35,9 +36,13 @@ const slice = createSlice({
       ...state,
       redirectTo: null
     }),
-    logout: (state) => ({
-      ...state, redirectTo: '/', token: null, currentUser: null
-    })
+    logout: (state) => {
+      window.localStorage.setItem('jwt', '');
+      agent.setToken(null);
+      return ({
+        ...state, redirectTo: '/', token: null, currentUser: null
+      })
+    }
   },
   extraReducers: add => {
     add.addCase(editorActions.articleSubmitted, (state, action) => {
@@ -50,12 +55,16 @@ const slice = createSlice({
       currentUser: action.payload.user
     }));
     for (const action of [authActions.login, authActions.register]) {
-      add.addCase(action, (state, action) => ({
-        ...state,
-        redirectTo: '/',
-        token: action.payload.user.token,
-        currentUser: action.payload.user
-      }))
+      add.addCase(action, (state, action) => {
+        window.localStorage.setItem('jwt', action.payload.user.token);
+        agent.setToken(action.payload.user.token);
+        return ({
+          ...state,
+          redirectTo: '/',
+          token: action.payload.user.token,
+          currentUser: action.payload.user
+        })
+      })
     }
     for (const action of [
       articleActions.articlePageUnLoaded

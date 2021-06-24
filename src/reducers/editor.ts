@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { EditorState, SingleArticle } from '../models';
+import { asyncError, asyncStart } from '../constants/actionTypes';
 
 const slice = createSlice({
   name: 'editor',
@@ -34,16 +35,18 @@ const slice = createSlice({
       {
         ...state, [action.payload.key]: action.payload.value
       }),
-    startRequest: (state) => ({
-      ...state, inProgress: true
-    }),
-    error: (state, action) => {
+  },
+  extraReducers: reducers => {
+    reducers.addCase(asyncStart, (state) => ({
+      ...state, inProgress: true, errors: undefined
+    }))
+    reducers.addCase(asyncError, (state, action) => {
       return ({
         ...state,
         inProgress: false,
-        errors: action.payload.response.body.errors
+        errors: action.payload.errors
       });
-    },
+    })
   }
 })
 export const editorActions = slice.actions;

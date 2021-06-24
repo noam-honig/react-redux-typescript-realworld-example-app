@@ -5,6 +5,7 @@ import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { StateModel } from '../models';
 import { authActions } from '../reducers/auth';
+import { runAsync } from '../constants/actionTypes';
 
 const mapStateToProps = (state: StateModel) => ({ ...state.auth });
 
@@ -15,8 +16,7 @@ const mapDispatchToProps = ({
   onChangeUsername: value =>
     value => authActions.updateField({ key: 'username', value }),
   onSubmit: authActions.register,
-  onStartRequest: authActions.startRequest,
-  onError: authActions.error,
+
   onUnload: authActions.registerPageUnload
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
@@ -29,9 +29,7 @@ class Register extends React.Component<ConnectedProps<typeof connector>> {
   changeUsername = ev => this.props.onChangeUsername(ev.target.value);
   submitForm = (username, email, password) => ev => {
     ev.preventDefault();
-    this.props.onStartRequest();
-    agent.Auth.register(username, email, password).then(this.props.onSubmit,
-      this.props.onError);
+    runAsync(this.props.onSubmit, agent.Auth.register(username, email, password));
   }
 
   componentWillUnmount() {

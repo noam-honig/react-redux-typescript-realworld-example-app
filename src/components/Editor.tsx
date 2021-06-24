@@ -4,6 +4,7 @@ import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouterMatchModel, StateModel } from '../models';
 import { editorActions } from '../reducers/editor';
+import { runAsync } from '../constants/actionTypes';
 
 const mapStateToProps = (state: StateModel) => ({
   ...state.editor
@@ -16,8 +17,7 @@ const mapDispatchToProps = ({
   onSubmit: editorActions.articleSubmitted,
   onUnload: editorActions.editorPageUnLoaded,
   onUpdateField: editorActions.updateFieldEditor,
-  startRequest: editorActions.startRequest,
-  error: editorActions.error
+
 });
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
@@ -31,7 +31,7 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
 
   watchForEnter = ev => {
     if (ev.keyCode === 13) {
-      ev.preventDefault();
+      ev.preventDefault(); 
       this.props.onAddTag();
     }
   };
@@ -53,8 +53,7 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
     const promise = this.props.articleSlug ?
       agent.Articles.update(Object.assign(article, slug)) :
       agent.Articles.create(article);
-    this.props.startRequest();
-    promise.then(this.props.onSubmit, this.props.error);
+    runAsync(this.props.onSubmit, promise);
   };
 
   componentWillReceiveProps(nextProps) {

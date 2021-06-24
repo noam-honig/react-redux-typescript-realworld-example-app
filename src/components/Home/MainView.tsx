@@ -14,7 +14,7 @@ const YourFeedTab = (props: {
   if (props.token) {
     const clickHandler = ev => {
       ev.preventDefault();
-      agent.Articles.feed().then(articles =>
+      agent.Articles.feed(0).then(articles => 
         props.onTabClick({
           tab: 'feed', pager: agent.Articles.feed, articles
         }));

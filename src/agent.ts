@@ -61,8 +61,8 @@ const Articles = {
     requests.post<SingleArticle>(`/articles/${slug}/favorite`, {}),
   favoritedBy: (author: string, page?: number) =>
     requests.get<MultipleArticlesModel>(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
-  feed: () =>
-    requests.get<MultipleArticlesModel>('/articles/feed?limit=10&offset=0'),
+  feed: (page?:number) =>
+    requests.get<MultipleArticlesModel>('/articles/feed?'+limit(10, page)),
   get: (slug: string) =>
     requests.get<SingleArticle>(`/articles/${slug}`),
   unfavorite: (slug: string) =>

@@ -3,9 +3,10 @@ import React from 'react';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { SettingsFormsState, StateModel, UserModel } from '../models';
+import { SettingsFormsState, SingleUser, StateModel, UserModel } from '../models';
 import { settingsActions } from '../reducers/settings';
 import common, { commonActions } from '../reducers/common';
+import { runAsync } from '../constants/actionTypes';
 
 class SettingsForm extends React.Component<{
   currentUser: UserModel,
@@ -137,21 +138,20 @@ const mapStateToProps = (state: StateModel) => ({
 });
 
 const mapDispatchToProps = ({
-  onClickLogout: () => commonActions.logout,
+  onClickLogout:  commonActions.logout,
   onSubmitForm: settingsActions.settingsSaved,
-  onUnload: () => settingsActions.settingsPageUnloaded,
-  onStartRequest: settingsActions.startRequest,
-  onError: settingsActions.error,
-
+  onUnload: settingsActions.settingsPageUnloaded,
 });
+
+
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Settings extends React.Component<ConnectedProps<typeof connector>> {
+
+
   render() {
     let submitForm = (state: SettingsFormsState) => {
-      this.props.onStartRequest();
-      agent.Auth.save(state as UserModel).then(this.props.onSubmitForm, this.props.errors);
-
+      runAsync(this.props.onSubmitForm, agent.Auth.save(state as UserModel));
     }
     return (
       <div className="settings-page">
@@ -181,6 +181,7 @@ class Settings extends React.Component<ConnectedProps<typeof connector>> {
       </div>
     );
   }
+
 }
 
 export default connector(Settings);

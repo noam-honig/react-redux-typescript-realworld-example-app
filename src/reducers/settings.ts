@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { asyncError, asyncStart } from '../constants/actionTypes';
 
 import { SettingsState, SingleUser, UserModel } from '../models';
 const slice = createSlice({
@@ -8,31 +9,35 @@ const slice = createSlice({
     settingsSaved: (state, action: PayloadAction<SingleUser>) => ({
       ...state,
       inProgress: false,
+      errors: null,
       currentUser: {
         ...state.currentUser,
         inProgress: false
       }
     }),
-    settingsPageUnloaded: () => ({}),
-    startRequest: (state) => ({
+    settingsPageUnloaded: () => ({})
+  },
+  extraReducers: reducers => {
+    reducers.addCase(asyncStart, (state) => ({
       ...state,
       inProgress: true,
+      errors: undefined,
       currentUser: {
         ...state.currentUser,
         inProgress: true
       }
-    }),
-    error: (state, action) => {
+    }))
+    reducers.addCase(asyncError, (state, action) => {
       return ({
         ...state,
         inProgress: false,
-        errors: action.payload.response.body.errors,
+        errors: action.payload.errors,
         currentUser: {
           ...state.currentUser,
           inProgress: false
         }
-      });
-    },
+      })
+    })
   }
 });
 export const settingsActions = slice.actions;

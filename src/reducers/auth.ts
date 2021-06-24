@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { asyncError, asyncStart } from '../constants/actionTypes';
 import { AuthState, SingleUser } from '../models';
 
 const slice = createSlice({
@@ -19,18 +20,20 @@ const slice = createSlice({
       ...state,
       inProgress: false
     }),
-    startRequest: (state) => ({
-      ...state, inProgress: true
-    }),
-    error: (state, action) => {
+    loginPageUnloaded: () => ({}),
+    registerPageUnload: () => ({})
+  },
+  extraReducers: reducers => {
+    reducers.addCase(asyncStart, (state) => ({
+      ...state, inProgress: true, errors: undefined
+    }))
+    reducers.addCase(asyncError, (state, action) => {
       return ({
         ...state,
         inProgress: false,
-        errors: action.payload.response.body.errors
+        errors: action.payload.errors
       });
-    },
-    loginPageUnloaded: () => ({}),
-    registerPageUnload: () => ({})
+    })
   }
 });
 export const authActions = slice.actions;
