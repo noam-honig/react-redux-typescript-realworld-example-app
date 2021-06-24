@@ -24,9 +24,5 @@ const slice = createSlice({
     })
   }
 });
-export const {
-  articlePageLoaded,
-  articlePageUnLoaded,
-  deleteComment,
-  addComment } = slice.actions;
+export const articleActions = slice.actions;
 export default slice.reducer;

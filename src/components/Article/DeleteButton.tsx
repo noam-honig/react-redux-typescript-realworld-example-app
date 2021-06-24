@@ -1,10 +1,10 @@
 import React from 'react';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import { deleteComment } from '../../reducers/article';
+import { articleActions } from '../../reducers/article';
 
 const mapDispatchToProps = ({
-  onClick: deleteComment
+  onClick: articleActions.deleteComment
 });
 
 const connector = connect(() => ({}), mapDispatchToProps);

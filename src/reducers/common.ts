@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CommonState, SingleUser } from '../models';
-import { articlePageUnLoaded } from './article';
+import { articleActions } from './article';
+
 import { authActions } from './auth';
 import { editorActions } from './editor';
 import { homeActions } from './home';
@@ -57,7 +58,7 @@ const slice = createSlice({
       }))
     }
     for (const action of [
-      articlePageUnLoaded
+      articleActions.articlePageUnLoaded
       , editorActions.editorPageUnLoaded
       , homeActions.homePageUnloaded
       , profileActions.profilePageUnloaded

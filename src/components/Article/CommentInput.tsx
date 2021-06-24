@@ -1,17 +1,18 @@
 import React from 'react';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import { addComment } from '../../reducers/article';
+
 import { ProfileModel } from '../../models';
+import { articleActions } from '../../reducers/article';
 
 const mapDispatchToProps = {
-  onSubmit: addComment
+  onSubmit: articleActions.addComment
 };
 
 const connector = connect(() => ({}), mapDispatchToProps);
 class CommentInput extends React.Component<ConnectedProps<typeof connector> & {
   slug: string,
-  currentUser:ProfileModel
+  currentUser: ProfileModel
 }, { body: string }> {
   constructor(p) {
     super(p);

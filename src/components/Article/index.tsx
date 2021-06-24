@@ -5,7 +5,7 @@ import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import marked from 'marked';
 import { RouterMatchModel, StateModel } from '../../models';
-import { articlePageLoaded, articlePageUnLoaded } from '../../reducers/article';
+import { articleActions } from '../../reducers/article';
 
 const mapStateToProps = (state: StateModel) => ({
   ...state.article,
@@ -13,8 +13,8 @@ const mapStateToProps = (state: StateModel) => ({
 });
 
 const mapDispatchToProps = {
-  onLoad: articlePageLoaded,
-  onUnload: articlePageUnLoaded
+  onLoad: articleActions.articlePageLoaded,
+  onUnload: articleActions.articlePageUnLoaded
 };
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Article extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
