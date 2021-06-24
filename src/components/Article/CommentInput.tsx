@@ -2,8 +2,9 @@ import React from 'react';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { ProfileModel } from '../../models';
+
 import { articleActions } from '../../reducers/article';
+import { ProfileModel } from '../../models/ProfileModel';
 
 const mapDispatchToProps = {
   onSubmit: articleActions.addComment

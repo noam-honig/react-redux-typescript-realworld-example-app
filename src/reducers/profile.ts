@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { MultipleArticlesModel, Pager, ProfileModel, SingleProfile } from '../models';
+import { MultipleArticlesModel, Pager, SingleProfile } from '../models';
+import { ProfileModel } from '../models/ProfileModel';
 
 const slice = createSlice({
   name: "profile",

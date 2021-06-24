@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { asyncError, asyncStart } from '../constants/actionTypes';
 
-import { SettingsState, SingleUser, UserModel } from '../models';
+import { SettingsState, SingleUser } from '../models';
 const slice = createSlice({
   name: 'settings',
   initialState: {} as SettingsState,

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
-import { ArticleModel } from '../../models';
+import { ArticleModel } from "../../models/ArticleModel";
 import { commonActions } from '../../reducers/common';
 
 const mapDispatchToProps = ({

@@ -1,7 +1,8 @@
 import DeleteButton from './DeleteButton';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { CommentModel, ProfileModel } from '../../models';
+import { CommentModel } from "../../models/CommentModel";
+import { ProfileModel } from '../../models/ProfileModel';
 
 const Comment = (props: {
   comment: CommentModel,

@@ -1,15 +1,8 @@
-export interface ArticleModel {
-    slug?: string;
-    title?: string;
-    description?: string;
-    body?: string;
-    tagList?: string[];
-    createdAt?: string;
-    updatedAt?: string;
-    favorited?: boolean;
-    favoritesCount?: number;
-    author?: ProfileModel;
-}
+import { CommentModel } from "./models/CommentModel";
+import { ArticleModel } from "./models/ArticleModel";
+import { ProfileModel } from "./models/ProfileModel";
+import { UserModel } from "./models/UserModel";
+
 export interface MultipleArticlesModel {
     articles: ArticleModel[],
     articlesCount: number
@@ -19,16 +12,6 @@ export interface SingleArticle {
 }
 export type Pager = (page: number) => Promise<MultipleArticlesModel>;
 
-export interface UserModel {
-
-    email: string,
-    token: string,
-    username: string,
-    bio: string,
-    image: string,
-    password: string
-
-}
 export interface SettingsFormsState {
     email: string;
     username: string;
@@ -41,22 +24,10 @@ export interface SingleUser {
     user: UserModel
 }
 
-export interface ProfileModel {
-    username?: string;
-    bio?: string;
-    image?: string;
-    following?: boolean;
-}
 export interface SingleProfile {
     profile?: ProfileModel;
 }
 
-export interface CommentModel {
-    id?: number;
-    body?: string;
-    createdAt?: string;
-    author?: ProfileModel;
-}
 export interface SingleComment {
     comment: CommentModel;
 }

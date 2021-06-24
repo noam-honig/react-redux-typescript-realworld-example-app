@@ -3,7 +3,8 @@ import CommentList from './CommentList';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import ListErrors from '../ListErrors';
-import { CommentModel, ProfileModel } from '../../models';
+import { CommentModel } from "../../models/CommentModel";
+import { ProfileModel } from '../../models/ProfileModel';
 
 const CommentContainer = (props: {
   currentUser: ProfileModel,

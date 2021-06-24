@@ -1,6 +1,9 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
-import { ArticleModel, CommentModel, ListOfTags, MultipleArticlesModel, MultipleComments, SingleArticle, SingleComment, SingleProfile, SingleUser, UserModel } from './models';
+import { ListOfTags, MultipleArticlesModel, MultipleComments, SingleArticle, SingleComment, SingleProfile, SingleUser } from './models';
+import { CommentModel } from "./models/CommentModel";
+import { UserModel } from "./models/UserModel";
+import { ArticleModel } from "./models/ArticleModel";
 
 const superagent = superagentPromise(_superagent, global.Promise);
 

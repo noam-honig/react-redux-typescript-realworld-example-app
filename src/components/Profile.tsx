@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { ProfileModel, RouterMatchModel, StateModel } from '../models';
+import {  RouterMatchModel, StateModel } from '../models';
 import { profileActions } from '../reducers/profile';
+import { ProfileModel } from '../models/ProfileModel';
 
 const EditProfileSettings = props => {
   if (props.isUser) {

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { articleListActions } from '../reducers/articleList';
-import { ArticleModel } from '../models';
+import { ArticleModel } from "../models/ArticleModel";
 
 const FAVORITED_CLASS = 'btn btn-sm btn-primary';
 const NOT_FAVORITED_CLASS = 'btn btn-sm btn-outline-primary';

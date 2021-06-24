@@ -1,6 +1,7 @@
 import Comment from './Comment';
 import React from 'react';
-import { CommentModel, ProfileModel } from '../../models';
+import { CommentModel } from "../../models/CommentModel";
+import { ProfileModel } from "../../models/ProfileModel";
 
 const CommentList = (props:{
   currentUser:ProfileModel,

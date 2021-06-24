@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ProfileModel } from '../models';
+import { ProfileModel } from '../models/ProfileModel';
 
 const LoggedOutView = (props:{
   currentUser:ProfileModel

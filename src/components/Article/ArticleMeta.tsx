@@ -1,7 +1,7 @@
 import ArticleActions from './ArticleActions';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { ArticleModel } from '../../models';
+import { ArticleModel } from '../../models/ArticleModel';
 
 const ArticleMeta = (props:{
   canModify:boolean,

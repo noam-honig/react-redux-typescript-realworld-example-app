@@ -3,10 +3,11 @@ import React from 'react';
 import agent from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { SettingsFormsState, SingleUser, StateModel, UserModel } from '../models';
+import { SettingsFormsState,  StateModel } from '../models';
 import { settingsActions } from '../reducers/settings';
-import common, { commonActions } from '../reducers/common';
+import  { commonActions } from '../reducers/common';
 import { runAsync } from '../constants/actionTypes';
+import { UserModel } from '../models/UserModel';
 
 class SettingsForm extends React.Component<{
   currentUser: UserModel,
