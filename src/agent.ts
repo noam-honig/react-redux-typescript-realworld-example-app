@@ -2,10 +2,12 @@ import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
 import { ListOfTags, MultipleArticlesModel, MultipleComments, SingleArticle, SingleComment, SingleProfile, SingleUser } from './models';
 import { CommentModel } from "./models/CommentModel";
-import { UserModel } from "./models/UserModel";
+import { UserEntity, UserModel } from "./models/UserModel";
 import { ArticleModel } from "./models/ArticleModel";
 import { Context } from '@remult/core';
 import { ProfileEntity } from './models/ProfileModel';
+import { set } from '@remult/core/set';
+import { TagEntity } from './models/tagsModel';
 
 const superagent = superagentPromise(_superagent, global.Promise);
 
@@ -59,18 +61,24 @@ class requests {
 };
 
 const Auth = {
-  current: () =>
-    requests.get<SingleUser>('/user'),
+  current: () => {
+    return UserEntity.currentUser();
+  },
   login: (email: string, password: string) =>
-    requests.post<SingleUser>('/users/login', { user: { email, password } }),
-  register: (username: string, email: string, password: string) =>
-    requests.post<SingleUser>('/users', { user: { username, email, password } }),
-  save: (user: UserModel) =>
-    requests.put<SingleUser>('/user', { user })
+    UserEntity.signIn(email, password),
+  register: async (username: string, email: string, password: string) => {
+    let u = context.for(UserEntity).create({ username, email, password });
+    return await u.saveAndReturnSingleUser();
+  },
+  save: async (user: UserModel) => {
+    let u = await context.for(UserEntity).findId(context.user.id);
+    set(u, user);
+    return await u.saveAndReturnSingleUser();
+  }
 };
 
 const Tags = {
-  getAll: () => requests.get<ListOfTags>('/tags')
+  getAll: async () => ({ tags: await context.for(TagEntity).find().then(x => x.map(x => x.tag)) })
 };
 
 const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
@@ -126,3 +134,4 @@ export default {
   Tags,
   setToken: (_token: string) => { token = _token; }
 };
+

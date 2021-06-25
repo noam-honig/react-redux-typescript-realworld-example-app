@@ -5,6 +5,10 @@ import * as compression from 'compression';
 import * as helmet from 'helmet';
 
 import "../models/ProfileModel";
+import "../models/ArticleModel";
+import "../models/UserModel";
+import "../models/CommentModel";
+import "../models/tagsModel";
 
 let app = express();
 app.use(expressJwt({
