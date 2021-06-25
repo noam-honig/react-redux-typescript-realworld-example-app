@@ -5,7 +5,7 @@ import { CommentModel } from "./models/CommentModel";
 import { UserModel } from "./models/UserModel";
 import { ArticleModel } from "./models/ArticleModel";
 import { Context } from '@remult/core';
-import { ProfileEntity } from './models/ProfileModel';
+
 
 const superagent = superagentPromise(_superagent, global.Promise);
 

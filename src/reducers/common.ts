@@ -30,7 +30,7 @@ const slice = createSlice({
       ...state,
       token: action.payload.token || null,
       appLoaded: true,
-      currentUser: action.payload ? action.payload.user.user : null
+      currentUser: action.payload.user ? action.payload.user.user : null
     }),
     redirect: (state) => ({
       ...state,
