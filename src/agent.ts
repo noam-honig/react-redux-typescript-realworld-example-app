@@ -17,7 +17,7 @@ const responseBody = res => res.body;
 let token = null;
 const tokenPlugin = req => {
   if (token) {
-    req.set('Authorization', `Bearer ${token}`);
+    req.set('authorization', `Token ${token}`);
   }
 }
 
