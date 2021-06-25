@@ -17,6 +17,8 @@ export function runAsync<T>(onSubmitForm: ActionCreatorWithOptionalPayload<T, st
     promise: Promise<T>) {
     store.dispatch(asyncStart());
     promise.then(onSubmitForm, r => {
-        store.dispatch(asyncError({ errors: r.response.body.errors }));
+        store.dispatch(asyncError({ errors: { 
+            "":r.message
+         } }));
     });
 }

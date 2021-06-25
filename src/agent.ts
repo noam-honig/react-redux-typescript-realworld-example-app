@@ -1,14 +1,14 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
 import { ListOfTags, MultipleArticlesModel, MultipleComments, SingleArticle, SingleComment, SingleProfile, SingleUser } from './models';
-import { CommentModel } from "./models/CommentModel";
+import { CommentEntity, CommentModel } from "./models/CommentModel";
 import { UserEntity, UserModel } from "./models/UserModel";
-import { ArticleModel } from "./models/ArticleModel";
-import { Context } from '@remult/core';
-import { ProfileEntity } from './models/ProfileModel';
+import { ArticleEntity, ArticleModel, Favorites as FavoriteEntity } from "./models/ArticleModel";
+import { Context, EntityWhere } from '@remult/core';
+import { Follows as FollowEntity, ProfileEntity } from './models/ProfileModel';
 import { set } from '@remult/core/set';
 import { TagEntity } from './models/tagsModel';
-
+import { actionInfo } from '@remult/core/src/server-action';
 const superagent = superagentPromise(_superagent, global.Promise);
 
 const API_ROOT = 'https://conduit.productionready.io/api';
@@ -23,6 +23,7 @@ const tokenPlugin = req => {
   }
 }
 
+actionInfo.runningOnServer = false;
 
 const context = new Context({
   delete: (url: string) =>
@@ -45,20 +46,7 @@ const context = new Context({
 });
 
 
-class requests {
-  static del<T>(url): Promise<T> {
-    return superagent.del(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody);
-  }
-  static get<T>(url: string): Promise<T> {
-    return superagent.get(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody);
-  }
-  static put<T>(url, body): Promise<T> {
-    return superagent.put(`${API_ROOT}${url}`, body).use(tokenPlugin).then(responseBody);
-  }
-  static post<T>(url, body): Promise<T> {
-    return superagent.post(`${API_ROOT}${url}`, body).use(tokenPlugin).then(responseBody);
-  }
-};
+
 
 const Auth = {
   current: () => {
@@ -84,46 +72,78 @@ const Tags = {
 const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
 const omitSlug = article => Object.assign({}, article, { slug: undefined })
 const Articles = {
-  all: (page?: number) =>
-    requests.get<MultipleArticlesModel>(`/articles?${limit(10, page)}`),
-  byAuthor: (author: string, page?: number) =>
-    requests.get<MultipleArticlesModel>(`/articles?author=${encode(author)}&${limit(5, page)}`),
+  all: (page?: number) => multipleArticles(undefined, page),
+
+  byAuthor: async (author: string, page?: number) => {
+    let auth = await context.for(ProfileEntity).getCachedByIdAsync(author);
+    return multipleArticles(a => a.author.isEqualTo(auth), page);
+  },
   byTag: (tag: string, page?: number) =>
-    requests.get<MultipleArticlesModel>(`/articles?tag=${encode(tag)}&${limit(10, page)}`),
-  del: (slug: string) =>
-    requests.del(`/articles/${slug}`),
+    multipleArticles(a => a.tagList.contains(tag), page),
+  del: async (slug: string) =>
+    context.for(ArticleEntity).findId(slug).then(a => a.delete()),
+
   favorite: (slug: string) =>
-    requests.post<SingleArticle>(`/articles/${slug}/favorite`, {}),
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(async article => {
+      if (!article.favoritedRef.exists())
+        await article.favoritedRef.item.save()
+      return { article } as SingleArticle
+    }),
   favoritedBy: (author: string, page?: number) =>
-    requests.get<MultipleArticlesModel>(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
+    context.for(FavoriteEntity).find({ where: f => f.userId.isEqualTo(author) }).then(f => multipleArticles(a => a.slug.isIn(f.map(f => f.articleId)), page)),
+
   feed: (page?: number) =>
-    requests.get<MultipleArticlesModel>('/articles/feed?' + limit(10, page)),
+    context.for(FollowEntity).find({ where: f => f.follower.isEqualTo(context.user.id) })
+      .then(f => Promise.all(f.map(f => f.$.following.load())))
+      .then(authors => multipleArticles(a => a.author.isIn(authors), page)),
   get: (slug: string) =>
-    requests.get<SingleArticle>(`/articles/${slug}`),
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => ({ article } as SingleArticle)),
   unfavorite: (slug: string) =>
-    requests.del<SingleArticle>(`/articles/${slug}/favorite`),
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(async article => {
+      if (article.favoritedRef.exists())
+        await article.favoritedRef.item.delete();
+      return { article } as SingleArticle;
+    }),
   update: (article: ArticleModel) =>
-    requests.put<SingleArticle>(`/articles/${article.slug}`, { article: omitSlug(article) }),
-  create: (article: ArticleModel) =>
-    requests.post<SingleArticle>('/articles', { article })
+    context.for(ArticleEntity).getCachedByIdAsync(article.slug).then(a => {
+      let { title, description, body, tagList } = article;
+      return set(a, { title, description, body, tagList }).save();
+    }).then(article => ({ article } as SingleArticle))
+  ,
+  create: ({ slug, body, description, tagList, title }: ArticleModel) =>
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => set(article, { body, description, tagList, title }).save()).then(article => ({ article } as SingleArticle))
 };
 
 const Comments = {
   create: (slug: string, comment: CommentModel) =>
-    requests.post<SingleComment>(`/articles/${slug}/comments`, { comment }),
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => set(article.comments.create(), { body: comment.body }).save()).then(comment => ({ comment } as SingleComment)),
   delete: (slug: string, commentId: number) =>
-    requests.del(`/articles/${slug}/comments/${commentId}`),
+    context.for(CommentEntity).findFirst(c => c.articleId.isEqualTo(slug).and(c.id.isEqualTo(commentId))).then(c => c.delete()),
+
   forArticle: (slug: string) =>
-    requests.get<MultipleComments>(`/articles/${slug}/comments`)
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => article.comments.load()).then(comments => ({ comments } as MultipleComments))
 };
 
 const Profile = {
   follow: (username: string) =>
-    requests.post<SingleProfile>(`/profiles/${username}/follow`, {}),
+    context.for(ProfileEntity).getCachedByIdAsync(username).then(async profile => {
+      if (!profile.followingRel.exists())
+        await profile.followingRel.item.save()
+      return {
+        profile
+      } as SingleProfile
+    }),
   get: (username: string) =>
-    requests.get<SingleProfile>(`/profiles/${username}`),
+    context.for(ProfileEntity).getCachedByIdAsync(username).then(profile => ({ profile } as SingleProfile)),
   unfollow: (username: string) =>
-    requests.del(`/profiles/${username}/follow`)
+    context.for(ProfileEntity).getCachedByIdAsync(username).then(async profile => {
+      if (profile.followingRel.exists())
+        await profile.followingRel.item.delete();
+      return {
+        profile
+      } as SingleProfile
+    }),
+
 };
 
 export default {
@@ -135,3 +155,12 @@ export default {
   setToken: (_token: string) => { token = _token; }
 };
 
+
+async function multipleArticles(where: EntityWhere<ArticleEntity>, page: number): Promise<MultipleArticlesModel> {
+  let [articles, articlesCount] =
+    await Promise.all([
+      context.for(ArticleEntity).find({ where, limit: 10, page }),
+      context.for(ArticleEntity).count(where)]);
+  let res = await Promise.all(articles.map(async (a) => a.$.author.load().then(() => a)));
+  return { articles: res, articlesCount };
+}

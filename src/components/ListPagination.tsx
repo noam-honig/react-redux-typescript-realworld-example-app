@@ -5,7 +5,7 @@ import { Pager } from '../models';
 import { articleListActions } from '../reducers/articleList';
 
 
-const mapDispatchToProps =  ({
+const mapDispatchToProps = ({
   onSetPage: articleListActions.setPage
 });
 

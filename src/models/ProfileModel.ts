@@ -14,7 +14,7 @@ export interface ProfileModel {
     dbName: 'users',
     apiRequireId: true
 })
-export class ProfileEntity extends EntityBase {
+export class ProfileEntity extends EntityBase implements ProfileModel {
     @Field({
         validate: [Validators.required, Validators.unique]
     })
@@ -30,7 +30,7 @@ export class ProfileEntity extends EntityBase {
             return self.followingRel.exists();
         }
     })
-    following: Boolean;
+    following: boolean;
     constructor(protected context: Context) {
         super()
     }
@@ -58,7 +58,7 @@ export class ProfileEntity extends EntityBase {
         follows.follower.isEqualTo(context.user.id)
 
 })
-class Follows extends EntityBase {
+export class Follows extends EntityBase {
     @Field({
         allowApiUpdate: false
     })

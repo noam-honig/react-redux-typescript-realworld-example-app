@@ -5,13 +5,9 @@ import { Field, Entity, Context, EntityBase, Validators } from "@remult/core";
 export interface CommentModel {
     id?: number;
     body?: string;
-    createdAt?: string;
+    createdAt?: Date;
     author?: ProfileModel;
 }
-
-
-
-
 
 @Entity<CommentEntity>({
     key: 'comment',
@@ -25,7 +21,7 @@ export interface CommentModel {
             c.author = await c.context.for(ProfileEntity).findId(c.context.user.id)
     }
 })
-export class CommentEntity extends EntityBase {
+export class CommentEntity extends EntityBase implements CommentModel {
     @Field({
         allowApiUpdate: false
     })

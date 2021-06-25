@@ -19,8 +19,6 @@ export interface ArticleModel {
 }
 
 
-
-
 @Entity<ArticleEntity>({
     key: 'article',
 
@@ -40,7 +38,7 @@ export interface ArticleModel {
         }
     }
 })
-export class ArticleEntity extends EntityBase {
+export class ArticleEntity extends EntityBase implements ArticleModel {
 
     @Field({ allowApiUpdate: false })
     slug: string;
@@ -65,7 +63,9 @@ export class ArticleEntity extends EntityBase {
     createdAt: Date = new Date();
     @Field({ allowApiUpdate: false })
     updatedAt: Date;
-    favorited = new ManyToOne(this.context.for(Favorites), f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.context.user.id)));
+    favoritedRef = new ManyToOne(this.context.for(Favorites), f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.context.user.id)));
+    @Field<ArticleEntity>({ serverExpression: self => self.favoritedRef.exists() })
+    favorited: boolean;
     @Field<ArticleEntity>({
         serverExpression: async article => article.context.for(Favorites).count(f => f.articleId.isEqualTo(article.slug))
     })
@@ -82,14 +82,14 @@ export class ArticleEntity extends EntityBase {
     }
 
     async toggleFavorite() {
-        await this.favorited.load();
+        await this.favoritedRef.load();
 
-        if (this.favorited.exists()) {
-            await this.favorited.item.delete();
+        if (this.favoritedRef.exists()) {
+            await this.favoritedRef.item.delete();
             this.favoritesCount--;
         }
         else {
-            await this.favorited.item.save();
+            await this.favoritedRef.item.save();
             this.favoritesCount++;
         }
     }
