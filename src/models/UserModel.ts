@@ -31,8 +31,6 @@ export interface UserModel {
             user.hashedPassword = await (await import('argon2')).hash(user.password);
         }
     }
-
-
 })
 export class UserEntity extends ProfileEntity {
     @Field({

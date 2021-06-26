@@ -4,7 +4,7 @@ import { ListOfTags, MultipleArticlesModel, MultipleComments, SingleArticle, Sin
 import { CommentEntity, CommentModel } from "./models/CommentModel";
 import { UserEntity, UserModel } from "./models/UserModel";
 import { ArticleEntity, ArticleModel, Favorites as FavoriteEntity } from "./models/ArticleModel";
-import { Context, EntityWhere } from '@remult/core';
+import { Context, EntityWhere, EntityBase } from '@remult/core';
 import { Follows as FollowEntity, ProfileEntity } from './models/ProfileModel';
 import { set } from '@remult/core/set';
 import { TagEntity } from './models/tagsModel';
@@ -69,8 +69,7 @@ const Tags = {
   getAll: async () => ({ tags: await context.for(TagEntity).find().then(x => x.map(x => x.tag)) })
 };
 
-const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
-const omitSlug = article => Object.assign({}, article, { slug: undefined })
+
 const Articles = {
   all: (page?: number) => multipleArticles(undefined, page),
 
@@ -97,21 +96,20 @@ const Articles = {
       .then(f => Promise.all(f.map(f => f.$.following.load())))
       .then(authors => multipleArticles(a => a.author.isIn(authors), page)),
   get: (slug: string) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => ({ article } as SingleArticle)),
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(loadAllFields).then(async article => ({ article } as SingleArticle)),
   unfavorite: (slug: string) =>
     context.for(ArticleEntity).getCachedByIdAsync(slug).then(async article => {
       if (article.favoritedRef.exists())
         await article.favoritedRef.item.delete();
       return { article } as SingleArticle;
     }),
-  update: (article: ArticleModel) =>
-    context.for(ArticleEntity).getCachedByIdAsync(article.slug).then(a => {
-      let { title, description, body, tagList } = article;
+  update: ({ slug, title, description, body, tagList }: ArticleModel) =>
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(a => {
       return set(a, { title, description, body, tagList }).save();
     }).then(article => ({ article } as SingleArticle))
   ,
-  create: ({ slug, body, description, tagList, title }: ArticleModel) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => set(article, { body, description, tagList, title }).save()).then(article => ({ article } as SingleArticle))
+  create: ({ slug, title, description, body, tagList }: ArticleModel) =>
+    context.for(ArticleEntity).create({ slug, title, description, body, tagList }).save().then(article => ({ article } as SingleArticle))
 };
 
 const Comments = {
@@ -121,7 +119,7 @@ const Comments = {
     context.for(CommentEntity).findFirst(c => c.articleId.isEqualTo(slug).and(c.id.isEqualTo(commentId))).then(c => c.delete()),
 
   forArticle: (slug: string) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => article.comments.load()).then(comments => ({ comments } as MultipleComments))
+    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => article.comments.load()).then(c => Promise.all(c.map(c => loadAllFields(c)))).then(comments => ({ comments } as MultipleComments))
 };
 
 const Profile = {
@@ -161,6 +159,11 @@ async function multipleArticles(where: EntityWhere<ArticleEntity>, page: number)
     await Promise.all([
       context.for(ArticleEntity).find({ where, limit: 10, page }),
       context.for(ArticleEntity).count(where)]);
-  let res = await Promise.all(articles.map(async (a) => a.$.author.load().then(() => a)));
+  let res = await Promise.all(articles.map(async (a) => loadAllFields(a).then(() => a)));
   return { articles: res, articlesCount };
+}
+
+export async function loadAllFields<T extends EntityBase>(e: T) {
+  await Promise.all([...e.$].map(x => x.load()));
+  return e;
 }

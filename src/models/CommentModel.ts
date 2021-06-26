@@ -11,14 +11,25 @@ export interface CommentModel {
 
 @Entity<CommentEntity>({
     key: 'comment',
-    dbAutoIncrementId: true,
+    //dbAutoIncrementId: true,
     allowApiUpdate: (context, comment) => comment.author.username == context.user.id,
     allowApiDelete: (context, comment) => comment.author.username == context.user.id,
     allowApiInsert: context => context.isSignedIn(),
     allowApiRead: true,
-    saving: async (c) => {
-        if (c.context.backend)
-            c.author = await c.context.for(ProfileEntity).findId(c.context.user.id)
+    saving: async (self) => {
+        if (self.context.backend && self.isNew()) {
+            self.author = await self.context.for(ProfileEntity).findId(self.context.user.id);
+            let max = await self._.repository.find({
+                where: c => c.articleId.isEqualTo(self.articleId),
+                orderBy: c => c.id.descending(),
+                limit: 1
+            });
+            if (max.length == 1) {
+                self.id = max[0].id + 1;
+            } else
+                self.id = 1;
+        }
+
     }
 })
 export class CommentEntity extends EntityBase implements CommentModel {
@@ -39,6 +50,7 @@ export class CommentEntity extends EntityBase implements CommentModel {
     })
     createdAt: Date = new Date();
     @Field<CommentEntity>({
+        dataType:ProfileEntity,
         allowApiUpdate: false
     })
     author: ProfileEntity;

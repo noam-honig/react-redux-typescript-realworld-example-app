@@ -1,7 +1,7 @@
 import { store } from '../store'
 import { ActionCreatorWithOptionalPayload } from '@reduxjs/toolkit';
 import { createAction } from "@reduxjs/toolkit";
-
+import { ErrorInfo } from '@remult/core'
 
 export const asyncStart = createAction("asyncStart");
 export const asyncError = createAction<{ errors: any }>("asyncError");
@@ -16,9 +16,15 @@ export const ASYNC_END = 'ASYNC_END';
 export function runAsync<T>(onSubmitForm: ActionCreatorWithOptionalPayload<T, string>,
     promise: Promise<T>) {
     store.dispatch(asyncStart());
-    promise.then(onSubmitForm, r => {
-        store.dispatch(asyncError({ errors: { 
-            "":r.message
-         } }));
+    promise.then(onSubmitForm, (r: ErrorInfo) => {
+        {
+            let errors = {};
+            if (r.modelState)
+                errors = r.modelState;
+            else errors = {
+                "": r.message
+            }
+            store.dispatch(asyncError({ errors }));
+        }
     });
 }

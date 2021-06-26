@@ -1,0 +1,9 @@
+[
+  {
+    "username": "noamhonig",
+    "image": "",
+    "email": "noamhonig@gmail.com",
+    "password": "12345678",
+    "hashedPassword": "$argon2i$v=19$m=4096,t=3,p=1$rCOKJpHTFp85fy0XVcjBcg$ikc7VG7yFmi0sGcl+NFMzLyRFI1xfx0JIBZvwB4hUTM"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "articleId": "title-cz1qsr",
+    "body": "my comment",
+    "createdAt": "2021-06-26T06:11:18.491Z",
+    "author": "noamhonig"
+  },
+  {
+    "id": 2,
+    "articleId": "title-cz1qsr",
+    "body": "another comment",
+    "createdAt": "2021-06-26T06:11:26.249Z",
+    "author": "noamhonig"
+  }
+]

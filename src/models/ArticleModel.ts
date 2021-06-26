@@ -70,7 +70,10 @@ export class ArticleEntity extends EntityBase implements ArticleModel {
         serverExpression: async article => article.context.for(Favorites).count(f => f.articleId.isEqualTo(article.slug))
     })
     favoritesCount: number;
-    @Field<ArticleEntity>({ allowApiUpdate: false })
+    @Field<ArticleEntity>({ 
+        dataType:ProfileEntity,
+        allowApiUpdate: false
+     })
     author: ProfileEntity;
 
     comments = new OneToMany(this.context.for(CommentEntity), {

@@ -17,12 +17,13 @@
     "@types/redux-logger": "^3.0.8",
     "@types/superagent": "^4.1.10",
     "cross-env": "^5.1.4",
+    "dotenv": "^10.0.0",
     "react-scripts": "4.0.3",
     "ts-node-dev": "^1.1.6"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.5.1",
-    "@remult/core": "^3.0.29",
+    "@remult/core": "^3.0.30",
     "argon2": "^0.28.2",
     "compression": "^1.7.4",
     "express": "^4.17.1",
@@ -42,6 +43,7 @@
     "redux-actions": "^2.6.5",
     "redux-devtools-extension": "^2.13.2",
     "redux-logger": "^3.0.1",
+    "reflect-metadata": "^0.1.13",
     "slug": "^5.1.0",
     "superagent": "^3.8.2",
     "superagent-promise": "^1.1.0",

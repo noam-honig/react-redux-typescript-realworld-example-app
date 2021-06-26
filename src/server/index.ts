@@ -3,16 +3,17 @@ import { initExpress } from '@remult/core/server';
 import * as expressJwt from 'express-jwt';
 import * as compression from 'compression';
 import * as helmet from 'helmet';
+import { config } from 'dotenv';
 
 import "../models/ProfileModel";
 import "../models/ArticleModel";
 import "../models/UserModel";
 import "../models/CommentModel";
 import "../models/tagsModel";
-
+config();
 let app = express();
 app.use(expressJwt({
-    secret: "my secret key",
+    secret: process.env.TOKEN_SIGN_KEY,
     credentialsRequired: false,
     algorithms: ['HS256']
 }));
