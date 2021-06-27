@@ -1,5 +1,4 @@
 import React from 'react';
-import agent, { context } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
 
