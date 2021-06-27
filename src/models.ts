@@ -1,6 +1,6 @@
 import { CommentModel } from "./models/CommentModel";
 import { ArticleModel } from "./models/ArticleModel";
-import {  ProfileModel } from "./models/ProfileModel"; 
+import { ProfileModel } from "./models/ProfileModel";
 import { UserModel } from "./models/UserModel";
 
 export interface MultipleArticlesModel {
@@ -24,17 +24,6 @@ export interface SingleUser {
     user: UserModel
 }
 
-export interface SingleProfile {
-    profile?: ProfileModel;
-}
-
-export interface SingleComment {
-    comment: CommentModel;
-}
-export interface MultipleComments {
-    comments: CommentModel[];
-}
-
 export interface StateModel {
     article: ArticleState;
     common: CommonState;
@@ -51,7 +40,7 @@ export interface CommonState {
     token?: string;
     appLoaded?: boolean;
     redirectTo?: string;
-    viewChangeCounter?:number;
+    viewChangeCounter?: number;
 }
 export interface SettingsState {
     inProgress?: boolean;
@@ -90,9 +79,7 @@ export interface ArticleListState {
     tags?: string[];
 }
 
-export interface ListOfTags {
-    tags: string[]
-}
+
 export interface RouterMatchModel {
     match: { params: { id?: string, username?: string, slug?: string } }
 }

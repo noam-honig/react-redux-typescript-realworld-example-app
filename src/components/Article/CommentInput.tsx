@@ -1,10 +1,14 @@
 import React from 'react';
-import agent from '../../agent';
+import agent, { context } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
 
 import { articleActions } from '../../reducers/article';
 import { ProfileModel } from '../../models/ProfileModel';
+import { ArticleModel } from '../../models/ArticleModel';
+import { getEntityRef } from '@remult/core';
+import { set } from '@remult/core/set';
+
 
 const mapDispatchToProps = {
   onSubmit: articleActions.addComment
@@ -12,7 +16,7 @@ const mapDispatchToProps = {
 
 const connector = connect(() => ({}), mapDispatchToProps);
 class CommentInput extends React.Component<ConnectedProps<typeof connector> & {
-  slug: string,
+  article: ArticleModel,
   currentUser: ProfileModel
 }, { body: string }> {
   constructor(p) {
@@ -28,9 +32,8 @@ class CommentInput extends React.Component<ConnectedProps<typeof connector> & {
 
   createComment = (ev: React.FormEvent) => {
     ev.preventDefault();
-
-    agent.Comments.create(this.props.slug,
-      { body: this.state.body }).then(payload => {
+    getEntityRef(set(this.props.article.comments.create(), { body: this.state.body })).save()
+      .then(payload => {
         this.setState({ body: '' });
         this.props.onSubmit(payload);
       });

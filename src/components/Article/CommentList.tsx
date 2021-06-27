@@ -5,8 +5,7 @@ import { ProfileModel } from "../../models/ProfileModel";
 
 const CommentList = (props:{
   currentUser:ProfileModel,
-  comments:CommentModel[],
-  slug:string
+  comments:CommentModel[]
 }) => {
   return (
     <div>
@@ -16,7 +15,6 @@ const CommentList = (props:{
             <Comment
               comment={comment}
               currentUser={props.currentUser}
-              slug={props.slug}
               key={comment.id} />
           );
         })

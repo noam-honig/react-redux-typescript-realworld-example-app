@@ -1,10 +1,10 @@
 import ArticleList from './ArticleList';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import agent from '../agent';
+import agent, { context } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
-import {  RouterMatchModel, StateModel } from '../models';
+import { RouterMatchModel,  StateModel } from '../models';
 import { profileActions } from '../reducers/profile';
 import { ProfileModel } from '../models/ProfileModel';
 
@@ -40,12 +40,8 @@ const FollowUserButton = (props: {
 
   const handleClick = ev => {
     ev.preventDefault();
-    if (props.user.following) {
-      agent.Profile.unfollow(props.user.username).then(p => props.refreshProfile(p));
-
-    } else {
-      agent.Profile.follow(props.user.username).then(p => props.refreshProfile(p));
-    }
+    props.user.toggleFollowing().then(p=>props.refreshProfile(p));
+    
   };
 
   return (
@@ -74,7 +70,7 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 class Profile extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
     Promise.all([
-      agent.Profile.get(this.props.match.params.username),
+      context.for(ProfileModel).getCachedByIdAsync(this.props.match.params.username),
       agent.Articles.byAuthor(this.props.match.params.username)
     ]).then(data => {
       this.props.onLoad({

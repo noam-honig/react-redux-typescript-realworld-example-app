@@ -19,5 +19,19 @@
     "body": "one more comment",
     "createdAt": "2021-06-27T06:09:47.899Z",
     "author": "noamhonig"
+  },
+  {
+    "id": 4,
+    "articleId": "title-cz1qsr",
+    "body": "1",
+    "createdAt": "2021-06-27T07:49:17.516Z",
+    "author": "noamhonig"
+  },
+  {
+    "id": 5,
+    "articleId": "title-cz1qsr",
+    "body": "2",
+    "createdAt": "2021-06-27T07:49:20.739Z",
+    "author": "noamhonig"
   }
 ]

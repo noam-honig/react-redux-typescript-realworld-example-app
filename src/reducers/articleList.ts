@@ -65,7 +65,7 @@ const slice = createSlice({
     builder.addCase(homeActions.homePageLoaded, (state, action) => ({
       ...state,
       pager: action.payload.pager,
-      tags: action.payload.tags.tags,
+      tags: action.payload.tags,
       articles: action.payload.articles.articles,
       articlesCount: action.payload.articles.articlesCount,
       currentPage: 0,

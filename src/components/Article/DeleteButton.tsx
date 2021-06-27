@@ -1,7 +1,9 @@
 import React from 'react';
-import agent from '../../agent';
+import agent, { context } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { articleActions } from '../../reducers/article';
+import { CommentModel } from '../../models/CommentModel';
+import { getEntityRef } from '@remult/core';
 
 const mapDispatchToProps = ({
   onClick: articleActions.deleteComment
@@ -9,15 +11,11 @@ const mapDispatchToProps = ({
 
 const connector = connect(() => ({}), mapDispatchToProps);
 const DeleteButton = (props: ConnectedProps<typeof connector> & {
-  slug: string,
-  commentId: number,
+  comment:CommentModel,
   show: boolean
 }) => {
   const del = () => {
-    agent.Comments.delete(props.slug, props.commentId).then(() => {
-
-      props.onClick(props.commentId);
-    });
+    getEntityRef(props.comment).delete().then(()=>props.onClick(props.comment.id))
   };
 
   if (props.show) {
@@ -31,3 +29,4 @@ const DeleteButton = (props: ConnectedProps<typeof connector> & {
 };
 
 export default connector(DeleteButton);
+

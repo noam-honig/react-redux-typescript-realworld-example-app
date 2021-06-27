@@ -6,6 +6,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { StateModel } from '../models';
 import { authActions } from '../reducers/auth';
 import { runAsync } from '../constants/actionTypes';
+import { UserEntity } from '../models/UserModel';
 
 const mapStateToProps = (state: StateModel) => ({ ...state.auth });
 
@@ -27,7 +28,7 @@ class Login extends React.Component<ConnectedProps<typeof connector>> {
   changePassword = ev => this.props.onChangePassword(ev.target.value);
   submitForm = (email, password) => ev => {
     ev.preventDefault();
-    runAsync(this.props.onSubmit, agent.Auth.login(email, password));
+    runAsync(this.props.onSubmit, UserEntity.signIn(email, password));
   };
 
   componentWillUnmount() {

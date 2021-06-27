@@ -19,11 +19,9 @@ const mapDispatchToProps = {
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Article extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
-
-    Promise.all([
-      agent.Articles.get(this.props.match.params.id),
-      agent.Comments.forArticle(this.props.match.params.id)
-    ]).then(payload => this.props.onLoad(payload));
+    agent.Articles.get(this.props.match.params.id).then(article => {
+      article.article.comments.load().then(comments => this.props.onLoad([article, comments]))
+    });
   }
 
   componentWillUnmount() {
@@ -85,7 +83,7 @@ class Article extends React.Component<ConnectedProps<typeof connector> & RouterM
             <CommentContainer
               comments={this.props.comments || []}
               errors={this.props.commentErrors}
-              slug={this.props.match.params.id}
+              article={this.props.article}
               currentUser={this.props.currentUser} />
           </div>
         </div>

@@ -1,13 +1,14 @@
 import ListErrors from './ListErrors';
 import React from 'react';
-import agent from '../agent';
+import agent, { context } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { SettingsFormsState,  StateModel } from '../models';
+import { SettingsFormsState, StateModel } from '../models';
 import { settingsActions } from '../reducers/settings';
-import  { commonActions } from '../reducers/common';
+import { commonActions } from '../reducers/common';
 import { runAsync } from '../constants/actionTypes';
-import { UserModel } from '../models/UserModel';
+import { UserEntity, UserModel } from '../models/UserModel';
+import { set } from '@remult/core/set';
 
 class SettingsForm extends React.Component<{
   currentUser: UserModel,
@@ -139,7 +140,7 @@ const mapStateToProps = (state: StateModel) => ({
 });
 
 const mapDispatchToProps = ({
-  onClickLogout:  commonActions.logout,
+  onClickLogout: commonActions.logout,
   onSubmitForm: settingsActions.settingsSaved,
   onUnload: settingsActions.settingsPageUnloaded,
 });
@@ -152,10 +153,15 @@ class Settings extends React.Component<ConnectedProps<typeof connector>> {
 
   render() {
     let submitForm = (state: SettingsFormsState) => {
-      runAsync(this.props.onSubmitForm, agent.Auth.save(state as UserModel));
+      runAsync(this.props.onSubmitForm,
+        context.for(UserEntity).findId(context.user.id).then(u => {
+          if (!state.password)
+            delete state.password;
+          return set(u, state).saveAndReturnSingleUser();
+        }));
     }
     return (
-      <div className="settings-page">
+      <div className="settings-page" >
         <div className="container page">
           <div className="row">
             <div className="col-md-6 offset-md-3 col-xs-12">

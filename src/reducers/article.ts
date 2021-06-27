@@ -1,21 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ArticleState, MultipleComments, SingleArticle, SingleComment } from '../models';
+import { ArticleState,  SingleArticle } from '../models';
+import { CommentModel } from '../models/CommentModel';
 
 
 const slice = createSlice({
   name: 'article',
   initialState: {} as ArticleState,
   reducers: {
-    articlePageLoaded: (state, action: PayloadAction<[SingleArticle, MultipleComments]>) =>
+    articlePageLoaded: (state, action: PayloadAction<[SingleArticle, CommentModel[]]>) =>
     ({
       ...state,
       article: action.payload[0].article,
-      comments: action.payload[1].comments
+      comments: action.payload[1]
     }),
-    addComment: (state, action: PayloadAction<SingleComment & { errors? }> & { error? }) => ({
+    addComment: (state, action: PayloadAction<CommentModel>) => ({
       ...state,
-      commentErrors: action.error ? action.payload.errors : null,
-      comments: action.error ? null : (state.comments || []).concat([action.payload.comment])
+      commentErrors: null,
+      comments:  (state.comments || []).concat([action.payload])
     }),
     articlePageUnLoaded: () => ({}),
     deleteComment: (state, action: PayloadAction<number>) => ({

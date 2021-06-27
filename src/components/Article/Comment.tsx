@@ -6,8 +6,7 @@ import { ProfileModel } from '../../models/ProfileModel';
 
 const Comment = (props: {
   comment: CommentModel,
-  currentUser: ProfileModel,
-  slug: string
+  currentUser: ProfileModel
 }) => {
   const comment = props.comment;
   const show = props.currentUser &&
@@ -32,7 +31,7 @@ const Comment = (props: {
         <span className="date-posted">
           {new Date(comment.createdAt).toDateString()}
         </span>
-        <DeleteButton show={show} slug={props.slug} commentId={comment.id} />
+        <DeleteButton show={show} comment={props.comment}  /> 
       </div>
     </div>
   );

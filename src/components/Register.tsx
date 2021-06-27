@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import ListErrors from './ListErrors';
 import React from 'react';
-import agent from '../agent';
+import agent, { context } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { StateModel } from '../models';
 import { authActions } from '../reducers/auth';
 import { runAsync } from '../constants/actionTypes';
+import { UserEntity } from '../models/UserModel';
 
 const mapStateToProps = (state: StateModel) => ({ ...state.auth });
 
@@ -29,7 +30,7 @@ class Register extends React.Component<ConnectedProps<typeof connector>> {
   changeUsername = ev => this.props.onChangeUsername(ev.target.value);
   submitForm = (username, email, password) => ev => {
     ev.preventDefault();
-    runAsync(this.props.onSubmit, agent.Auth.register(username, email, password));
+    runAsync(this.props.onSubmit, context.for(UserEntity).create({ username, email, password }).saveAndReturnSingleUser());
   }
 
   componentWillUnmount() {

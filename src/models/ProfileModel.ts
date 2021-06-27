@@ -1,5 +1,6 @@
-import { ManyToOne, Field, Context, Entity, Validators, getFields } from "@remult/core";
+import { ManyToOne, Field, Context, Entity, Validators, getFields, getEntityRef } from "@remult/core";
 import { CompoundIdField } from '@remult/core/src/column';
+
 
 
 
@@ -26,6 +27,17 @@ export class ProfileModel {
         }
     })
     following?: boolean;
+    async toggleFollowing?() {
+        await this.followingRel.load();
+        if (!this.followingRel.exists()) {
+            await getEntityRef(this.followingRel.item).save();
+        }
+        else {
+            await getEntityRef(this.followingRel.item).delete();
+        }
+        await getEntityRef(this).reload();
+        return this;
+    }
     constructor(protected context?: Context) {
     }
 

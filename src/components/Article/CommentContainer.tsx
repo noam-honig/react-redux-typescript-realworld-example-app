@@ -5,11 +5,12 @@ import React from 'react';
 import ListErrors from '../ListErrors';
 import { CommentModel } from "../../models/CommentModel";
 import { ProfileModel } from '../../models/ProfileModel';
+import { ArticleModel } from '../../models/ArticleModel';
 
 const CommentContainer = (props: {
   currentUser: ProfileModel,
   errors: {},
-  slug: string,
+  article: ArticleModel,
   comments: CommentModel[]
 }) => {
   if (props.currentUser) {
@@ -17,12 +18,11 @@ const CommentContainer = (props: {
       <div className="col-xs-12 col-md-8 offset-md-2">
         <div>
           <ListErrors errors={props.errors}></ListErrors>
-          <CommentInput slug={props.slug} currentUser={props.currentUser} />
+          <CommentInput article={props.article} currentUser={props.currentUser} />
         </div>
 
         <CommentList
           comments={props.comments}
-          slug={props.slug}
           currentUser={props.currentUser} />
       </div>
     );
@@ -38,7 +38,6 @@ const CommentContainer = (props: {
 
         <CommentList
           comments={props.comments}
-          slug={props.slug}
           currentUser={props.currentUser} />
       </div>
     );

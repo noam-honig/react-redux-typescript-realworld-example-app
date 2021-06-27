@@ -1,9 +1,10 @@
 import { Profile, mapStateToProps } from './Profile';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import agent from '../agent';
+import agent, { context } from '../agent';
 import { connect } from 'react-redux';
 import { profileActions } from '../reducers/profile';
+import { ProfileModel } from '../models/ProfileModel';
 
 
 const mapDispatchToProps = ({
@@ -14,8 +15,8 @@ const mapDispatchToProps = ({
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class ProfileFavorites extends Profile {
   componentWillMount() {
-    Promise.all([
-      agent.Profile.get(this.props.match.params.username),
+    Promise.all([ 
+      context.for(ProfileModel).getCachedByIdAsync(this.props.match.params.username),
       agent.Articles.favoritedBy(this.props.match.params.username)
     ]).then(data => {
 

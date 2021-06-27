@@ -9,7 +9,7 @@ export interface UserModel extends ProfileModel {
 }
 
 
-
+const passwordPlaceholder = 'passwordPlaceholder';
 
 @Entity<UserEntity>({
     key: 'user',
@@ -36,7 +36,7 @@ export class UserEntity extends ProfileModel {
 
     @Field({
         inputType: 'password',
-        serverExpression: () => '',
+        serverExpression: () => 'passwordPlaceholder',
         validate: Validators.required
     })
     password: string = '';

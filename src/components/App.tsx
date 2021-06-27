@@ -1,4 +1,4 @@
-import agent from '../agent';
+import agent, { context } from '../agent';
 import Header from './Header';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
@@ -16,6 +16,7 @@ import { store } from '../store';
 import { push } from 'react-router-redux';
 import { SingleUser, StateModel } from '../models';
 import { commonActions } from '../reducers/common';
+import { UserEntity } from '../models/UserModel';
 
 const mapStateToProps = (state: StateModel) => {
   return {
@@ -47,8 +48,10 @@ class App extends React.Component<ConnectedProps<typeof connector>> {
     }
     let promise: Promise<SingleUser> = Promise.resolve(undefined);;
     if (token)
-      promise = agent.Auth.current();
-    promise.then(user => this.props.onLoad({ user: user, token }))
+      promise = UserEntity.currentUser();
+    promise.then(user => {
+      this.props.onLoad({ user: user, token });
+    })
   }
 
   render() {

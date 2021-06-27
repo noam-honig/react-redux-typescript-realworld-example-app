@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { HomeState, ListOfTags, MultipleArticlesModel, Pager } from '../models';
+import { HomeState,  MultipleArticlesModel, Pager } from '../models';
 
 
 const slice = createSlice({
@@ -11,10 +11,10 @@ const slice = createSlice({
       tab: string,
       pager: Pager,
       articles: MultipleArticlesModel,
-      tags: ListOfTags
+      tags: string[]
     }>) => ({
       ...state,
-      tags: action.payload.tags.tags
+      tags: action.payload.tags
     }),
     homePageUnloaded: () => ({})
   }
