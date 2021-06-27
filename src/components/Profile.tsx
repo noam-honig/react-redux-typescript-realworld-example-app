@@ -1,12 +1,13 @@
 import ArticleList from './ArticleList';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import agent, { context } from '../agent';
+import { context, multipleArticles } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { RouterMatchModel,  StateModel } from '../models';
+import { RouterMatchModel, StateModel } from '../models';
 import { profileActions } from '../reducers/profile';
 import { ProfileModel } from '../models/ProfileModel';
+
 
 const EditProfileSettings = props => {
   if (props.isUser) {
@@ -40,8 +41,8 @@ const FollowUserButton = (props: {
 
   const handleClick = ev => {
     ev.preventDefault();
-    props.user.toggleFollowing().then(p=>props.refreshProfile(p));
-    
+    props.user.toggleFollowing().then(p => props.refreshProfile(p));
+
   };
 
   return (
@@ -69,16 +70,10 @@ const mapDispatchToProps = ({
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Profile extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
-    Promise.all([
-      context.for(ProfileModel).getCachedByIdAsync(this.props.match.params.username),
-      agent.Articles.byAuthor(this.props.match.params.username)
-    ]).then(data => {
-      this.props.onLoad({
-        pager: page => agent.Articles.byAuthor(this.props.match.params.username, page),
-        data
-      });
-
-    })
+    context.for(ProfileModel).getCachedByIdAsync(this.props.match.params.username).then(author => {
+      let pager = (page = 0) => multipleArticles(article => article.author.isEqualTo(author), page);
+      pager(0).then(articles => this.props.onLoad({ pager, data: [author, articles] }));
+    });
   }
 
   componentWillUnmount() {

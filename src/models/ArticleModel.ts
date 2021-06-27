@@ -1,11 +1,12 @@
-import { Validators, EntityBase, Field, Entity, Context, getEntityRef, getFields } from "@remult/core";
+import { Validators, Field, Entity, Context, getEntityRef, getFields } from "@remult/core";
 import { CompoundIdField, ManyToOne, OneToMany } from '@remult/core/src/column';
 import * as slug from "slug";
+
 import { CommentModel } from "./CommentModel";
 import { ProfileModel } from "./ProfileModel";
 
 
- 
+
 @Entity<ArticleModel>({
     key: 'article',
 
@@ -70,7 +71,20 @@ export class ArticleModel {
     constructor(private context?: Context) {
 
     }
+    async toggleFavorite?() {
+        await this.favoritedRef.load();
 
+        if (this.favoritedRef.exists()) {
+            await getEntityRef(this.favoritedRef.item).delete();
+            this.favoritesCount--;
+        }
+        else {
+            await getEntityRef(this.favoritedRef.item).save();
+            this.favoritesCount++;
+        }
+        await getEntityRef(this).reload();
+        return this;
+    }
 
 }
 @Entity<Favorites>({
@@ -97,3 +111,4 @@ export class Favorites {
 
     }
 }
+

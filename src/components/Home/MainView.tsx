@@ -1,10 +1,12 @@
 import ArticleList from '../ArticleList';
 import React from 'react';
-import agent from '../../agent';
+
 import { connect, ConnectedProps } from 'react-redux';
 
 import { StateModel } from '../../models';
 import { articleListActions } from '../../reducers/articleList';
+import { ArticleModel } from '../../models/ArticleModel';
+import { multipleArticles, userArticleFeed } from '../../agent';
 
 const YourFeedTab = (props: {
   token: string,
@@ -14,9 +16,9 @@ const YourFeedTab = (props: {
   if (props.token) {
     const clickHandler = ev => {
       ev.preventDefault();
-      agent.Articles.feed(0).then(articles => 
+      userArticleFeed(0).then(articles =>
         props.onTabClick({
-          tab: 'feed', pager: agent.Articles.feed, articles
+          tab: 'feed', pager: userArticleFeed, articles
         }));
     }
 
@@ -39,8 +41,8 @@ const GlobalFeedTab = (props: {
 }) => {
   const clickHandler = ev => {
     ev.preventDefault();
-    agent.Articles.all().then(articles =>
-      props.onTabClick({ tab: 'all', pager: agent.Articles.all, articles: articles }));
+    let pager = (page = 0) => multipleArticles(undefined, page);
+    pager(0).then(articles => props.onTabClick({ tab: 'all', pager, articles }));
   };
   return (
     <li className="nav-item">

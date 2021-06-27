@@ -1,6 +1,7 @@
 import React from 'react';
-import agent from '../agent';
+
 import { connect, ConnectedProps } from 'react-redux';
+import { multipleArticles } from '../agent';
 import { Pager } from '../models';
 import { articleListActions } from '../reducers/articleList';
 
@@ -20,7 +21,7 @@ const ListPagination = (props: ConnectedProps<typeof connector> & {
   }
 
   const range = [];
-  for (let i = 0; i < Math.ceil(props.articlesCount / 10); ++i) {
+  for (let i = 0; i < Math.ceil(props.articlesCount / 10); ++i) { 
     range.push(i);
   }
 
@@ -28,7 +29,7 @@ const ListPagination = (props: ConnectedProps<typeof connector> & {
     if (props.pager) {
       props.pager(page).then(articles => props.onSetPage({ page, articles }))
     } else {
-      agent.Articles.all(page).then(articles => props.onSetPage({ page, articles }));
+      multipleArticles(undefined, page).then(articles => props.onSetPage({ page, articles }));
     }
   };
 

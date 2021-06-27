@@ -1,10 +1,11 @@
 import { Profile, mapStateToProps } from './Profile';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import agent, { context } from '../agent';
+import { context, multipleArticles } from '../agent';
 import { connect } from 'react-redux';
 import { profileActions } from '../reducers/profile';
 import { ProfileModel } from '../models/ProfileModel';
+import { Favorites } from '../models/ArticleModel';
 
 
 const mapDispatchToProps = ({
@@ -15,15 +16,19 @@ const mapDispatchToProps = ({
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class ProfileFavorites extends Profile {
   componentWillMount() {
-    Promise.all([ 
-      context.for(ProfileModel).getCachedByIdAsync(this.props.match.params.username),
-      agent.Articles.favoritedBy(this.props.match.params.username)
-    ]).then(data => {
 
-      this.props.onLoad({
-        pager: page => agent.Articles.favoritedBy(this.props.match.params.username, page),
-        data
-      });
+
+
+    Promise.all([
+      context.for(ProfileModel).getCachedByIdAsync(this.props.match.params.username),
+      context.for(Favorites).find({ where: favorite => favorite.userId.isEqualTo(this.props.match.params.username) })
+    ]).then(data => {
+      let pager = (page = 0) => multipleArticles(article => article.slug.isIn(data[1].map(f => f.articleId)), page);
+      pager(0).then(articles =>
+        this.props.onLoad({
+          pager: pager,
+          data: [data[0], articles]
+        }));
     })
   }
 

@@ -1,12 +1,13 @@
 import ListErrors from './ListErrors';
 import React from 'react';
-import agent from '../agent';
+import agent, { context, loadAllFields } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouterMatchModel, StateModel } from '../models';
 import { editorActions } from '../reducers/editor';
 import { runAsync } from '../constants/actionTypes';
 import { set } from '@remult/core/set';
 import { getEntityRef } from '@remult/core';
+import { ArticleModel } from '../models/ArticleModel';
 
 const mapStateToProps = (state: StateModel) => ({
   ...state.editor
@@ -57,7 +58,7 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
     if (this.props.match.params.slug !== nextProps.match.params.slug) {
       if (nextProps.match.params.slug) {
         this.props.onUnload();
-        agent.Articles.get(this.props.match.params.slug).then(this.props.onLoad);
+        context.for(ArticleModel).getCachedByIdAsync(this.props.match.params.slug).then(loadAllFields).then(this.props.onLoad);
         return;
       }
       this.props.onLoad(null);
@@ -66,7 +67,7 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
 
   componentWillMount() {
     if (this.props.match.params.slug) {
-      agent.Articles.get(this.props.match.params.slug).then(this.props.onLoad);
+      context.for(ArticleModel).getCachedByIdAsync(this.props.match.params.slug).then(loadAllFields).then(this.props.onLoad);
       return;
     }
     this.props.onLoad(null);

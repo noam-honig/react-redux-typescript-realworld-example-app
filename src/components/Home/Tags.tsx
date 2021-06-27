@@ -1,5 +1,5 @@
 import React from 'react';
-import agent from '../../agent';
+import { multipleArticles } from '../../agent';
 import { articleListActions } from '../../reducers/articleList';
 
 const Tags = (props: {
@@ -14,12 +14,8 @@ const Tags = (props: {
           tags.map(tag => {
             const handleClick = ev => {
               ev.preventDefault();
-              agent.Articles.byTag(tag).then(articles =>
-                props.onClickTag({
-                  tag,
-                  pager: page => agent.Articles.byTag(tag, page),
-                  articles
-                }))
+              let pager = (page = 0) => multipleArticles(article => article.tagList.contains(tag), page);
+              pager(0).then(articles => props.onClickTag({ pager, tag, articles }));
             };
 
             return (

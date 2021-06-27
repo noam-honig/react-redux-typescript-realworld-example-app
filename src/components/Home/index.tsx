@@ -2,12 +2,13 @@ import Banner from './Banner';
 import MainView from './MainView';
 import React from 'react';
 import Tags from './Tags';
-import agent, { context } from '../../agent';
+import agent, { context, userArticleFeed, multipleArticles } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { HomeState, StateModel } from '../../models';
 import { articleListActions } from '../../reducers/articleList';
 import { homeActions } from '../../reducers/home';
 import { TagEntity } from '../../models/tagsModel';
+import { ArticleModel } from '../../models/ArticleModel';
 
 
 const Promise = global.Promise;
@@ -28,8 +29,8 @@ class Home extends React.Component<ConnectedProps<typeof connector> & HomeState>
   componentWillMount() {
     const tab = this.props.token ? 'feed' : 'all';
     const articlesPromise = this.props.token ?
-      agent.Articles.feed :
-      agent.Articles.all;
+      userArticleFeed :
+      page => multipleArticles(undefined, page);
     Promise.all([context.for(TagEntity).find().then(x => x.map(x => x.tag)), articlesPromise()]).then(x => {
       this.props.onLoad({
         tab: tab,

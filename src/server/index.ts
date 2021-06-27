@@ -10,6 +10,7 @@ import "../models/ArticleModel";
 import "../models/UserModel";
 import "../models/CommentModel";
 import "../models/tagsModel";
+
 config();
 let app = express();
 app.use(expressJwt({

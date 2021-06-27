@@ -1,11 +1,12 @@
 import ArticleMeta from './ArticleMeta';
 import CommentContainer from './CommentContainer';
 import React from 'react';
-import agent from '../../agent';
+import agent, { context, loadAllFields } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import marked from 'marked';
 import { RouterMatchModel, StateModel } from '../../models';
 import { articleActions } from '../../reducers/article';
+import { ArticleModel } from '../../models/ArticleModel';
 
 const mapStateToProps = (state: StateModel) => ({
   ...state.article,
@@ -19,7 +20,7 @@ const mapDispatchToProps = {
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Article extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
-    agent.Articles.get(this.props.match.params.id).then(article => {
+    context.for(ArticleModel).getCachedByIdAsync(this.props.match.params.id).then(loadAllFields).then(article => {
       article.comments.load().then(comments => this.props.onLoad([article, comments]))
     });
   }

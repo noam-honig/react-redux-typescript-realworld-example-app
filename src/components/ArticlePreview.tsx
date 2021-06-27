@@ -22,12 +22,7 @@ const ArticlePreview = (props: ConnectedProps<typeof connector> & { article: Art
 
   const handleClick = ev => {
     ev.preventDefault();
-    if (article.favorited) {
-      agent.Articles.unfavorite(article.slug).then(article => props.refreshFavorite(article))
-
-    } else {
-      agent.Articles.favorite(article.slug).then(article => props.refreshFavorite(article))
-    }
+    article.toggleFavorite().then(props.refreshFavorite);
   };
 
   return (
