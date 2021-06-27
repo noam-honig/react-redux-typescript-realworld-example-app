@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { ArticleListState, MultipleArticlesModel, Pager, SingleArticle } from '../models';
+import { ArticleListState, MultipleArticlesModel, Pager } from '../models';
+import { ArticleModel } from '../models/ArticleModel';
 import { homeActions } from './home';
 import { profileActions } from './profile';
 
@@ -25,14 +26,14 @@ const slice = createSlice({
         tag: action.payload.tag,
         currentPage: 0
       }),
-    refreshArticleFavorited: (state, action: PayloadAction<SingleArticle>) => ({
+    refreshArticleFavorited: (state, action: PayloadAction<ArticleModel>) => ({
       ...state,
       articles: state.articles.map(article => {
-        if (article.slug === action.payload.article.slug) {
+        if (article.slug === action.payload.slug) {
           return {
             ...article,
-            favorited: action.payload.article.favorited,
-            favoritesCount: action.payload.article.favoritesCount
+            favorited: action.payload.favorited,
+            favoritesCount: action.payload.favoritesCount
           };
         }
         return article;

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { asyncError, asyncStart } from '../constants/actionTypes';
-import { AuthState, SingleUser } from '../models';
+import { AuthState } from '../models';
+import { UserModel } from '../models/UserModel';
 
 const slice = createSlice({
   name: 'auth',
@@ -12,11 +13,11 @@ const slice = createSlice({
     }>) => ({
       ...state, [action.payload.key]: action.payload.value
     }),
-    login: (state, action: PayloadAction<SingleUser>) => ({
+    login: (state, action: PayloadAction<[UserModel,string]>) => ({
       ...state,
       inProgress: false
     }),
-    register: (state, action: PayloadAction<SingleUser>) => ({
+    register: (state, action: PayloadAction<[UserModel,string]>) => ({
       ...state,
       inProgress: false
     }),

@@ -5,6 +5,8 @@ import { connect, ConnectedProps } from 'react-redux';
 import { RouterMatchModel, StateModel } from '../models';
 import { editorActions } from '../reducers/editor';
 import { runAsync } from '../constants/actionTypes';
+import { set } from '@remult/core/set';
+import { getEntityRef } from '@remult/core';
 
 const mapStateToProps = (state: StateModel) => ({
   ...state.editor
@@ -31,7 +33,7 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
 
   watchForEnter = ev => {
     if (ev.keyCode === 13) {
-      ev.preventDefault(); 
+      ev.preventDefault();
       this.props.onAddTag();
     }
   };
@@ -42,18 +44,13 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
 
   submitForm = ev => {
     ev.preventDefault();
-    const article = {
+
+    runAsync(getEntityRef(set(this.props.article, {
       title: this.props.title,
       description: this.props.description,
       body: this.props.body,
       tagList: this.props.tagList
-    };
-
-    const slug = { slug: this.props.articleSlug };
-    const promise = this.props.articleSlug ?
-      agent.Articles.update(Object.assign(article, slug)) :
-      agent.Articles.create(article);
-    runAsync(this.props.onSubmit, promise);
+    })).save(), this.props.onSubmit);
   };
 
   componentWillReceiveProps(nextProps) {

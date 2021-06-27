@@ -3,13 +3,12 @@ import { ArticleModel } from "./models/ArticleModel";
 import { ProfileModel } from "./models/ProfileModel";
 import { UserModel } from "./models/UserModel";
 
+
 export interface MultipleArticlesModel {
     articles: ArticleModel[],
     articlesCount: number
 }
-export interface SingleArticle {
-    article: ArticleModel
-}
+
 export type Pager = (page: number) => Promise<MultipleArticlesModel>;
 
 export interface SettingsFormsState {
@@ -20,9 +19,7 @@ export interface SettingsFormsState {
     password: string;
     inProgress?: boolean;
 }
-export interface SingleUser {
-    user: UserModel
-}
+
 
 export interface StateModel {
     article: ArticleState;
@@ -58,6 +55,7 @@ export interface EditorState extends ArticleModel {
     articleSlug?: string,
     tagInput?: string,
     inProgress?: boolean,
+    article?:ArticleModel,
     errors?: any
 }
 export interface ArticleState {

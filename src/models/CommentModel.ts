@@ -15,7 +15,6 @@ import { Field, Entity, Context, Validators, getEntityRef } from "@remult/core";
         if (self.context.backend && getEntityRef(self).isNew()) {
             self.author = await self.context.for(ProfileModel).findId(self.context.user.id);
             let max = await getEntityRef(self).repository.find({
-                where: c => c.articleId.isEqualTo(self.articleId),
                 orderBy: c => c.id.descending(),
                 limit: 1
             });

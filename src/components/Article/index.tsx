@@ -20,7 +20,7 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 class Article extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
     agent.Articles.get(this.props.match.params.id).then(article => {
-      article.article.comments.load().then(comments => this.props.onLoad([article, comments]))
+      article.comments.load().then(comments => this.props.onLoad([article, comments]))
     });
   }
 
@@ -33,7 +33,7 @@ class Article extends React.Component<ConnectedProps<typeof connector> & RouterM
       return null;
     }
 
-    const markup = { __html: marked(this.props.article.body, { sanitize: true }) };
+    const markup = { __html: marked(this.props.article.body || '', { sanitize: true }) };
     const canModify = this.props.currentUser &&
       this.props.currentUser.username === this.props.article.author.username;
     return (

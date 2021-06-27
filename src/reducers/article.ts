@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ArticleState,  SingleArticle } from '../models';
+import { ArticleState } from '../models';
+import { ArticleModel } from '../models/ArticleModel';
 import { CommentModel } from '../models/CommentModel';
 
 
@@ -7,10 +8,10 @@ const slice = createSlice({
   name: 'article',
   initialState: {} as ArticleState,
   reducers: {
-    articlePageLoaded: (state, action: PayloadAction<[SingleArticle, CommentModel[]]>) =>
+    articlePageLoaded: (state, action: PayloadAction<[ArticleModel, CommentModel[]]>) =>
     ({
       ...state,
-      article: action.payload[0].article,
+      article: action.payload[0],
       comments: action.payload[1]
     }),
     addComment: (state, action: PayloadAction<CommentModel>) => ({

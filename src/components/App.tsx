@@ -14,9 +14,9 @@ import Register from './Register';
 import Settings from './Settings';
 import { store } from '../store';
 import { push } from 'react-router-redux';
-import { SingleUser, StateModel } from '../models';
+import { StateModel } from '../models';
 import { commonActions } from '../reducers/common';
-import { UserEntity } from '../models/UserModel';
+import { UserModel } from '../models/UserModel';
 
 const mapStateToProps = (state: StateModel) => {
   return {
@@ -26,7 +26,7 @@ const mapStateToProps = (state: StateModel) => {
     redirectTo: state.common.redirectTo
   }
 };
-
+ 
 const mapDispatchToProps = ({
   onLoad: commonActions.appLoad,
   onRedirect: commonActions.redirect
@@ -46,9 +46,9 @@ class App extends React.Component<ConnectedProps<typeof connector>> {
     if (token) {
       agent.setToken(token);
     }
-    let promise: Promise<SingleUser> = Promise.resolve(undefined);;
+    let promise: Promise<UserModel> = Promise.resolve(undefined);;
     if (token)
-      promise = UserEntity.currentUser();
+      promise = context.for(UserModel).findId(context.user.id);
     promise.then(user => {
       this.props.onLoad({ user: user, token });
     })

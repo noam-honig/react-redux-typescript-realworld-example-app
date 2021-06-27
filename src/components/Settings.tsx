@@ -7,7 +7,7 @@ import { SettingsFormsState, StateModel } from '../models';
 import { settingsActions } from '../reducers/settings';
 import { commonActions } from '../reducers/common';
 import { runAsync } from '../constants/actionTypes';
-import { UserEntity, UserModel } from '../models/UserModel';
+import { UserModel } from '../models/UserModel';
 import { set } from '@remult/core/set';
 
 class SettingsForm extends React.Component<{
@@ -61,12 +61,7 @@ class SettingsForm extends React.Component<{
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUser) {
-      this.setState(Object.assign({}, this.state, {
-        image: nextProps.currentUser.image || '',
-        username: nextProps.currentUser.username,
-        bio: nextProps.currentUser.bio,
-        email: nextProps.currentUser.email
-      }));
+      this.setState(nextProps.currentUser);
     }
   }
 
@@ -152,13 +147,13 @@ class Settings extends React.Component<ConnectedProps<typeof connector>> {
 
 
   render() {
+
     let submitForm = (state: SettingsFormsState) => {
-      runAsync(this.props.onSubmitForm,
-        context.for(UserEntity).findId(context.user.id).then(u => {
-          if (!state.password)
-            delete state.password;
-          return set(u, state).saveAndReturnSingleUser();
-        }));
+      if (!state.password)
+        delete state.password;
+      runAsync(
+        set(this.props.currentUser, state).saveAndReturnToken().then(() => this.props.currentUser)
+        , this.props.onSubmitForm);
     }
     return (
       <div className="settings-page" >

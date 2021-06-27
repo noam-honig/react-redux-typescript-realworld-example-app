@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import agent from '../agent';
-import { CommonState, SingleUser } from '../models';
+import { CommonState } from '../models';
+import { ArticleModel } from '../models/ArticleModel';
+import { UserModel } from '../models/UserModel';
 import { articleActions } from './article';
 
 import { authActions } from './auth';
@@ -25,12 +27,12 @@ const slice = createSlice({
     }),
     appLoad: (state, action: PayloadAction<{
       token: string,
-      user: SingleUser
+      user: UserModel
     }>) => ({
       ...state,
       token: action.payload.token || null,
       appLoaded: true,
-      currentUser: action.payload.user ? action.payload.user.user : null
+      currentUser: action.payload.user ? action.payload.user : null
     }),
     redirect: (state) => ({
       ...state,
@@ -45,24 +47,24 @@ const slice = createSlice({
     }
   },
   extraReducers: add => {
-    add.addCase(editorActions.articleSubmitted, (state, action) => {
-      const redirectUrl = `/article/${action.payload.article.slug}`;
+    add.addCase(editorActions.articleSubmitted, (state, action:PayloadAction<ArticleModel>) => { 
+      const redirectUrl = `/article/${action.payload.slug}`;
       return { ...state, redirectTo: redirectUrl };
     });
     add.addCase(settingsActions.settingsSaved, (state, action) => ({
       ...state,
       redirectTo: '/',
-      currentUser: action.payload.user
+      currentUser: action.payload
     }));
     for (const action of [authActions.login, authActions.register]) {
       add.addCase(action, (state, action) => {
-        window.localStorage.setItem('jwt', action.payload.user.token);
-        agent.setToken(action.payload.user.token);
+        window.localStorage.setItem('jwt', action.payload[1]);
+        agent.setToken(action.payload[1]);
         return ({
           ...state,
           redirectTo: '/',
-          token: action.payload.user.token,
-          currentUser: action.payload.user
+          token: action.payload[1],
+          currentUser: action.payload[0]
         })
       })
     }

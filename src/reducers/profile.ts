@@ -5,7 +5,7 @@ import { ProfileModel } from '../models/ProfileModel';
 
 const slice = createSlice({
   name: "profile",
-  initialState: {} as ProfileModel,
+  initialState: {} as Partial<ProfileModel>,
   reducers: {
     refreshProfile: (state, action: PayloadAction<ProfileModel>) => ({
       ...action.payload
@@ -14,7 +14,7 @@ const slice = createSlice({
       pager: Pager,
       data: [ProfileModel, MultipleArticlesModel]
     }>) => ({ ...action.payload.data[0] }),
-    profilePageUnloaded: () => ({})
+    profilePageUnloaded: (state) => ({...state})
   }
 });
 

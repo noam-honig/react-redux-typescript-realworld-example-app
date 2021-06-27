@@ -1,24 +1,26 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { EditorState, SingleArticle } from '../models';
+import { EditorState } from '../models';
 import { asyncError, asyncStart } from '../constants/actionTypes';
+import { ArticleModel } from '../models/ArticleModel';
+import { context } from '../agent';
 
 const slice = createSlice({
   name: 'editor',
   initialState: { tagList: [] } as EditorState,
   reducers: {
-    editorPageLoaded: (state, action: PayloadAction<SingleArticle>) =>
+    editorPageLoaded: (state, action: PayloadAction<ArticleModel>) =>
     ({
       ...state,
-      articleSlug: action.payload ? action.payload.article.slug : '',
-      title: action.payload ? action.payload.article.title : '',
-      description: action.payload ? action.payload.article.description : '',
-      body: action.payload ? action.payload.article.body : '',
+      article: action.payload ? action.payload : context.for(ArticleModel).create(),
+      articleSlug: action.payload ? action.payload.slug : '',
+      title: action.payload ? action.payload.title : '',
+      description: action.payload ? action.payload.description : '',
+      body: action.payload ? action.payload.body : '',
       tagInput: '',
-      tagList: action.payload ? action.payload.article.tagList : []
-    })
-    ,
-    editorPageUnLoaded: () => ({}),
-    articleSubmitted: (state, action: PayloadAction<SingleArticle>) => ({
+      tagList: action.payload ? action.payload.tagList : []
+    }),
+
+    articleSubmitted: (state, action: PayloadAction<ArticleModel>) => ({
       ...state,
       inProgress: null
     }),
@@ -35,6 +37,7 @@ const slice = createSlice({
       {
         ...state, [action.payload.key]: action.payload.value
       }),
+    editorPageUnLoaded: () => ({})
   },
   extraReducers: reducers => {
     reducers.addCase(asyncStart, (state) => ({

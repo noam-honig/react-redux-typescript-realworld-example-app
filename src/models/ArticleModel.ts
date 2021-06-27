@@ -5,14 +5,14 @@ import { CommentModel } from "./CommentModel";
 import { ProfileModel } from "./ProfileModel";
 
 
-
+ 
 @Entity<ArticleModel>({
     key: 'article',
 
     defaultOrderBy: article => article.createdAt.descending(),
     allowApiInsert: context => context.isSignedIn(),
-    allowApiUpdate: (context, self) => self.author.username == context.user.id,
-    allowApiDelete: (context, self) => self.author.username == context.user.id,
+    allowApiUpdate: (context, self) => true, // self.author.username == context.user.id,
+    allowApiDelete: (context, self) => true, // self.author.username == context.user.id,
     allowApiRead: true,
     saving: async (article) => {
         if (article.context.backend) {

@@ -1,24 +1,16 @@
 import { ProfileModel } from "./ProfileModel";
 import { Field, Context, Entity, UserInfo, Validators, BackendMethod, getEntityRef, getFields } from "@remult/core";
-import { SingleUser } from "../models";
-
-export interface UserModel extends ProfileModel {
-    token: string;
-    password: string;
-    email:string;
-}
-
 
 const passwordPlaceholder = 'passwordPlaceholder';
 
-@Entity<UserEntity>({
+@Entity<UserModel>({
     key: 'user',
     dbName: 'users',
     allowApiCrud: context => context.isSignedIn(),
     allowApiRead: true,
     allowApiInsert: false,
     apiRequireId: true,
-    allowApiUpdate: (context, user) => getFields(user).username.originalValue == context.user.id,
+    allowApiUpdate: (context, user) =>true,// getFields(user).username.originalValue == context.user.id,
     allowApiDelete: (context, user) => getFields(user).username.originalValue == context.user.id,
 
     saving: async (user) => {
@@ -27,7 +19,7 @@ const passwordPlaceholder = 'passwordPlaceholder';
         }
     }
 })
-export class UserEntity extends ProfileModel {
+export class UserModel extends ProfileModel {
     @Field({
         validate: [Validators.required, Validators.unique],
         inputType: 'email'
@@ -36,7 +28,7 @@ export class UserEntity extends ProfileModel {
 
     @Field({
         inputType: 'password',
-        serverExpression: () => 'passwordPlaceholder',
+        serverExpression: () => passwordPlaceholder,
         validate: Validators.required
     })
     password: string = '';
@@ -48,7 +40,7 @@ export class UserEntity extends ProfileModel {
 
     @BackendMethod({ allowed: true })
     static async signIn(email: string, password: string, context?: Context) {
-        let user = await context.for(UserEntity).findFirst(x => x.email.isEqualTo(email));
+        let user = await context.for(UserModel).findFirst(x => x.email.isEqualTo(email));
         let errorMessage = "email or password is invalid";
 
         if (!user)
@@ -56,39 +48,27 @@ export class UserEntity extends ProfileModel {
         if (user.password && user.password.trim().length > 0)
             if (!await (await import('argon2')).verify(user.hashedPassword, password))
                 throw new Error(errorMessage);
-        return await user.createSingleUserInterface();
+        return await user.createToken();
     }
     @BackendMethod({ allowed: true })
-    async saveAndReturnSingleUser() {
+    async saveAndReturnToken() {
         let ref = getEntityRef(this)
         if (ref.isNew() || this.username == this.context.user.id) {
             await ref.save();
-            return await this.createSingleUserInterface();
+            return await this.createToken();
         }
         else throw new Error("Invalid operation");
     }
-    @BackendMethod({ allowed: context => context.isSignedIn() })
-    static async currentUser(context?: Context) {
-        let u = await context.for(UserEntity).findId(context.user.id);
-        return await u.createSingleUserInterface();
-    }
-    async createSingleUserInterface(): Promise<SingleUser> {
+    
+    async createToken(): Promise<{ token: string }> {
         let userInfo: UserInfo = {
             id: this.username,
             name: this.username,
             roles: []
         };
-        let r: SingleUser = {
-            user: {
-                bio: this.bio,
-                email: this.email,
-                image: this.image,
-                password: undefined,
-                token: (await import('jsonwebtoken')).sign(userInfo, process.env.TOKEN_SIGN_KEY),
-                username: this.username
-            }
+        return {
+            token: (await import('jsonwebtoken')).sign(userInfo, process.env.TOKEN_SIGN_KEY)
         }
-        return r;
     }
 
 

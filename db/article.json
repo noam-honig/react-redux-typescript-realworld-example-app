@@ -2,13 +2,30 @@
   {
     "slug": "title-cz1qsr",
     "title": "title",
-    "description": "about",
-    "body": "# This is my article\n```\nsome code\n```",
+    "description": "about1234",
+    "body": "12345",
     "tagList": [
       "tag1"
     ],
     "createdAt": "2021-06-26T05:28:56.160Z",
-    "updatedAt": "2021-06-26T05:28:56.162Z",
-    "author": "noamhonig"
+    "updatedAt": "2021-06-27T10:44:32.047Z",
+    "author": "noamhonig",
+    "favorited": false,
+    "favoritesCount": 0,
+    "body1": "123"
+  },
+  {
+    "slug": "new-article-kpfx66",
+    "title": "new article",
+    "description": "something new",
+    "body": "# YES!",
+    "tagList": [
+      "12"
+    ],
+    "createdAt": "2021-06-27T11:30:28.493Z",
+    "updatedAt": "2021-06-27T11:30:36.388Z",
+    "author": "noamhonig",
+    "favorited": false,
+    "favoritesCount": 0
   }
 ]

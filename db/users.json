@@ -4,8 +4,8 @@
     "image": "",
     "email": "noamhonig@gmail.com",
     "password": "passwordPlaceholder",
-    "hashedPassword": "$argon2i$v=19$m=4096,t=3,p=1$4zXjoW/bFa+4eJ8PEstMsg$6fA5WTwqFfcWgdcyyTV9InmqBvcCjcCOrvMRhIyrMKA",
-    "bio": "1",
+    "hashedPassword": "$argon2i$v=19$m=4096,t=3,p=1$N237Fo/e4lnmXOEtkfOwuw$Yf+ln/Mh3/YWCjbGAWcaz3V2gebSPaEcY1Nd8SgvQTE",
+    "bio": "123",
     "following": false
   }
 ]

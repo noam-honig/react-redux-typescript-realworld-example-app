@@ -1,12 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { asyncError, asyncStart } from '../constants/actionTypes';
 
-import { SettingsState, SingleUser } from '../models';
+import { SettingsState } from '../models';
+import { UserModel } from '../models/UserModel';
 const slice = createSlice({
   name: 'settings',
   initialState: {} as SettingsState,
   reducers: {
-    settingsSaved: (state, action: PayloadAction<SingleUser>) => ({
+    settingsSaved: (state, action: PayloadAction<UserModel>) => ({
       ...state,
       inProgress: false,
       errors: null,

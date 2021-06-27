@@ -14,11 +14,11 @@ export class ProfileModel {
     @Field({
         validate: [Validators.required, Validators.unique]
     })
-    username?: string;
+    username: string;
     @Field()
-    bio?: string;
+    bio: string;
     @Field({ caption: "URL of profile picture" })
-    image?: string = '';
+    image: string = '';
     followingRel?= new ManyToOne(this.context.for(Follows), f => f.follower.isEqualTo(this.context.user.id).and(f.following.isEqualTo(this)));
     @Field<ProfileModel>({
         serverExpression: async self => {
@@ -26,8 +26,8 @@ export class ProfileModel {
             return self.followingRel.exists();
         }
     })
-    following?: boolean;
-    async toggleFollowing?() {
+    following: boolean;
+    async toggleFollowing() {
         await this.followingRel.load();
         if (!this.followingRel.exists()) {
             await getEntityRef(this.followingRel.item).save();
@@ -38,7 +38,7 @@ export class ProfileModel {
         await getEntityRef(this).reload();
         return this;
     }
-    constructor(protected context?: Context) {
+    constructor(protected context: Context) {
     }
 
 }

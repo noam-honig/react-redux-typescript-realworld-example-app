@@ -33,5 +33,12 @@
     "body": "2",
     "createdAt": "2021-06-27T07:49:20.739Z",
     "author": "noamhonig"
+  },
+  {
+    "id": 6,
+    "articleId": "new-article-kpfx66",
+    "body": "1",
+    "createdAt": "2021-06-27T11:31:31.040Z",
+    "author": "noamhonig"
   }
 ]

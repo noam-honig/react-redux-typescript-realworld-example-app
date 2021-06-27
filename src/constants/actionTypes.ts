@@ -13,8 +13,9 @@ export const ASYNC_END = 'ASYNC_END';
 
 
 
-export function runAsync<T>(onSubmitForm: ActionCreatorWithOptionalPayload<T, string>,
-    promise: Promise<T>) {
+
+export function runAsync<T>(
+    promise: Promise<T>,onSubmitForm: (payload: T) => void) {
     store.dispatch(asyncStart());
     promise.then(onSubmitForm, (r: ErrorInfo) => {
         {

@@ -1,12 +1,13 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
-import { MultipleArticlesModel, SingleArticle } from './models';
+import { MultipleArticlesModel } from './models';
 import { ArticleModel, Favorites as FavoriteEntity } from "./models/ArticleModel";
 import { Context, EntityWhere, getEntityRef, getFields, UserInfo } from '@remult/core';
 import jwt_decode from 'jwt-decode';
 import { Follows as FollowEntity, ProfileModel } from './models/ProfileModel';
 import { set } from '@remult/core/set';
 import { actionInfo } from '@remult/core/src/server-action';
+import { UserModel } from './models/UserModel';
 const superagent = superagentPromise(_superagent, global.Promise);
 
 const API_ROOT = 'https://conduit.productionready.io/api';
@@ -29,7 +30,7 @@ export const context = new Context({
   get: (url: string) =>
     superagent.get(`/${url}`).use(tokenPlugin).then(responseBody),
   put: (url: string, body: any) =>
-    superagent.put(`/${url}`, body).use(tokenPlugin),
+    superagent.put(`/${url}`, body).use(tokenPlugin).then(responseBody),
   post: async (url: string, body: any) => {
     return new Promise(async (res, err) => {
       try {
@@ -60,7 +61,7 @@ const Articles = {
     context.for(ArticleModel).getCachedByIdAsync(slug).then(async article => {
       if (!article.favoritedRef.exists())
         await getEntityRef(article.favoritedRef.item).save()
-      return { article } as SingleArticle
+      return article
     }),
   favoritedBy: (author: string, page?: number) =>
     context.for(FavoriteEntity).find({ where: f => f.userId.isEqualTo(author) }).then(f => multipleArticles(a => a.slug.isIn(f.map(f => f.articleId)), page)),
@@ -70,20 +71,20 @@ const Articles = {
       .then(f => Promise.all(f.map(f => getFields(f).following.load())))
       .then(authors => multipleArticles(a => a.author.isIn(authors), page)),
   get: (slug: string) =>
-    context.for(ArticleModel).getCachedByIdAsync(slug).then(loadAllFields).then(async article => ({ article } as SingleArticle)),
+    context.for(ArticleModel).getCachedByIdAsync(slug).then(loadAllFields),
   unfavorite: (slug: string) =>
     context.for(ArticleModel).getCachedByIdAsync(slug).then(async article => {
       if (article.favoritedRef.exists())
         await getEntityRef(article.favoritedRef.item).delete();
-      return { article } as SingleArticle;
+      return article;
     }),
-  update: ({ slug, title, description, body, tagList }: ArticleModel) =>
+  update: ({ slug, title, description, body: body, tagList }: ArticleModel) =>
     context.for(ArticleModel).getCachedByIdAsync(slug).then(a => {
-      return getEntityRef(set(a, { title, description, body, tagList })).save();
-    }).then(article => ({ article } as SingleArticle))
+      return getEntityRef(set(a, { title, description, body: body, tagList })).save();
+    })
   ,
-  create: ({ slug, title, description, body, tagList }: ArticleModel) =>
-    getEntityRef(context.for(ArticleModel).create({ slug, title, description, body, tagList })).save().then(article => ({ article } as SingleArticle))
+  create: ({ slug, title, description, body: body, tagList }: ArticleModel) =>
+    getEntityRef(context.for(ArticleModel).create({ slug, title, description, body: body, tagList })).save()
 };
 
 
