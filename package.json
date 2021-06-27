@@ -22,7 +22,7 @@
     "ts-node-dev": "^1.1.6"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^1.5.1",
+    "@reduxjs/toolkit": "^1.6.0",
     "@remult/core": "^3.0.30",
     "argon2": "^0.28.2",
     "compression": "^1.7.4",

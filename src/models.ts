@@ -1,6 +1,6 @@
 import { CommentModel } from "./models/CommentModel";
 import { ArticleModel } from "./models/ArticleModel";
-import { ProfileModel } from "./models/ProfileModel";
+import {  ProfileModel } from "./models/ProfileModel"; 
 import { UserModel } from "./models/UserModel";
 
 export interface MultipleArticlesModel {

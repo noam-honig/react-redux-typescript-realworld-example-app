@@ -1,25 +1,12 @@
-import { Validators, EntityBase, Field, Entity, Context } from "@remult/core";
+import { Validators, EntityBase, Field, Entity, Context, getEntityRef, getFields } from "@remult/core";
 import { CompoundIdField, ManyToOne, OneToMany } from '@remult/core/src/column';
 import * as slug from "slug";
-import { CommentEntity } from "./CommentModel";
-import { ProfileEntity, ProfileModel } from "./ProfileModel";
+import { CommentModel } from "./CommentModel";
+import { ProfileModel } from "./ProfileModel";
 
 
-export interface ArticleModel {
-    slug?: string;
-    title?: string;
-    description?: string;
-    body?: string;
-    tagList?: string[];
-    createdAt?: Date;
-    updatedAt?: Date;
-    favorited?: boolean;
-    favoritesCount?: number;
-    author?: ProfileModel;
-}
 
-
-@Entity<ArticleEntity>({
+@Entity<ArticleModel>({
     key: 'article',
 
     defaultOrderBy: article => article.createdAt.descending(),
@@ -29,73 +16,61 @@ export interface ArticleModel {
     allowApiRead: true,
     saving: async (article) => {
         if (article.context.backend) {
-            if (article.isNew())
-                article.author = await article.context.for(ProfileEntity).findId(article.context.user.id)
+            if (getEntityRef(article).isNew())
+                article.author = await article.context.for(ProfileModel).findId(article.context.user.id)
             article.updatedAt = new Date();
-            if (article.$.title.wasChanged()) {
+            if (getFields(article).title.wasChanged()) {
                 article.slug = slug(article.title, { lower: true }) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36)
             }
         }
     }
 })
-export class ArticleEntity extends EntityBase implements ArticleModel {
+export class ArticleModel {
 
     @Field({ allowApiUpdate: false })
-    slug: string;
+    slug?: string;
     @Field({
         caption: 'Article Title',
         validate: Validators.required
     })
-    title: string;
+    title?: string;
     @Field({
         caption: "What's this article about?",
         validate: Validators.required
     })
-    description: string;
+    description?: string;
     @Field({
         validate: Validators.required
     })
-    body: string;
+    body?: string;
     @Field({ defaultValue: () => [] })
-    tagList: string[];
+    tagList?: string[];
 
     @Field({ allowApiUpdate: false })
-    createdAt: Date = new Date();
+    createdAt?: Date = new Date();
     @Field({ allowApiUpdate: false })
-    updatedAt: Date;
-    favoritedRef = new ManyToOne(this.context.for(Favorites), f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.context.user.id)));
-    @Field<ArticleEntity>({ serverExpression: self => self.favoritedRef.exists() })
-    favorited: boolean;
-    @Field<ArticleEntity>({
+    updatedAt?: Date;
+    favoritedRef?= new ManyToOne(this.context.for(Favorites), f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.context.user.id)));
+    @Field<ArticleModel>({ serverExpression: self => self.favoritedRef.exists() })
+    favorited?: boolean;
+    @Field<ArticleModel>({
         serverExpression: async article => article.context.for(Favorites).count(f => f.articleId.isEqualTo(article.slug))
     })
-    favoritesCount: number;
-    @Field<ArticleEntity>({ 
-        dataType:ProfileEntity,
+    favoritesCount?: number;
+    @Field<ArticleModel>({
+        dataType: ProfileModel,
         allowApiUpdate: false
-     })
-    author: ProfileEntity;
+    })
+    author?: ProfileModel;
 
-    comments = new OneToMany(this.context.for(CommentEntity), {
+    comments?= new OneToMany(this.context.for(CommentModel), {
         where: c => c.articleId.isEqualTo(this.slug)
     })
 
-    constructor(private context: Context) {
-        super()
+    constructor(private context?: Context) {
+
     }
 
-    async toggleFavorite() {
-        await this.favoritedRef.load();
-
-        if (this.favoritedRef.exists()) {
-            await this.favoritedRef.item.delete();
-            this.favoritesCount--;
-        }
-        else {
-            await this.favoritedRef.item.save();
-            this.favoritesCount++;
-        }
-    }
 
 }
 @Entity<Favorites>({
@@ -105,20 +80,20 @@ export class ArticleEntity extends EntityBase implements ArticleModel {
     allowApiDelete: (context, self) => self.userId == context.user.id,
     allowApiRead: true,
     saving: (self) => {
-        if (self.isNew())
+        if (getEntityRef(self).isNew())
             self.userId = self.context.user.id;
     }
 })
-export class Favorites extends EntityBase {
+export class Favorites {
     @Field({
         allowApiUpdate: false
     })
     userId: string;
     @Field<Favorites>({
-        allowApiUpdate: (c, self) => self.isNew()
+        allowApiUpdate: (c, self) => getEntityRef(self).isNew()
     })
     articleId: string;
     constructor(private context: Context) {
-        super();
+
     }
 }

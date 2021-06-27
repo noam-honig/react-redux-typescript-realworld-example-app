@@ -1,15 +1,10 @@
-import { ProfileEntity, ProfileModel } from "./ProfileModel";
-import { Field, Entity, Context, EntityBase, Validators } from "@remult/core";
+import {  ProfileModel } from "./ProfileModel";
+import { Field, Entity, Context, Validators, getEntityRef } from "@remult/core";
 
 
-export interface CommentModel {
-    id?: number;
-    body?: string;
-    createdAt?: Date;
-    author?: ProfileModel;
-}
 
-@Entity<CommentEntity>({
+
+@Entity<CommentModel>({
     key: 'comment',
     //dbAutoIncrementId: true,
     allowApiUpdate: (context, comment) => comment.author.username == context.user.id,
@@ -17,9 +12,9 @@ export interface CommentModel {
     allowApiInsert: context => context.isSignedIn(),
     allowApiRead: true,
     saving: async (self) => {
-        if (self.context.backend && self.isNew()) {
-            self.author = await self.context.for(ProfileEntity).findId(self.context.user.id);
-            let max = await self._.repository.find({
+        if (self.context.backend && getEntityRef(self).isNew()) {
+            self.author = await self.context.for(ProfileModel).findId(self.context.user.id);
+            let max = await getEntityRef(self).repository.find({
                 where: c => c.articleId.isEqualTo(self.articleId),
                 orderBy: c => c.id.descending(),
                 limit: 1
@@ -27,21 +22,21 @@ export interface CommentModel {
             if (max.length == 1) {
                 self.id = max[0].id + 1;
             } else
-                self.id = 1;
+                self.id = 1; 
         }
 
     }
 })
-export class CommentEntity extends EntityBase implements CommentModel {
+export class CommentModel  {
     @Field({
         allowApiUpdate: false
     })
     id: number;
-    @Field<CommentEntity>({
-        allowApiUpdate: (c, x) => x.isNew()
+    @Field<CommentModel>({
+        allowApiUpdate: (c, x) => getEntityRef(x).isNew()
     })
     articleId: string;
-    @Field<CommentEntity, string>({
+    @Field<CommentModel, string>({
         validate: Validators.required
     })
     body: string;
@@ -49,14 +44,14 @@ export class CommentEntity extends EntityBase implements CommentModel {
         allowApiUpdate: false
     })
     createdAt: Date = new Date();
-    @Field<CommentEntity>({
-        dataType:ProfileEntity,
+    @Field<CommentModel>({
+        dataType: ProfileModel,
         allowApiUpdate: false
     })
-    author: ProfileEntity;
-
+    author: ProfileModel;
     constructor(private context: Context) {
-        super();
+
     }
+
 
 }

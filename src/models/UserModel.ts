@@ -1,16 +1,11 @@
-import { ProfileEntity } from "./ProfileModel";
-import { Field, Context, Entity, UserInfo, Validators, BackendMethod } from "@remult/core";
+import { ProfileModel } from "./ProfileModel";
+import { Field, Context, Entity, UserInfo, Validators, BackendMethod, getEntityRef, getFields } from "@remult/core";
 import { SingleUser } from "../models";
 
-export interface UserModel {
-
-    email: string;
+export interface UserModel extends ProfileModel {
     token: string;
-    username: string;
-    bio: string;
-    image: string;
     password: string;
-
+    email:string;
 }
 
 
@@ -23,8 +18,8 @@ export interface UserModel {
     allowApiRead: true,
     allowApiInsert: false,
     apiRequireId: true,
-    allowApiUpdate: (context, user) => user.$.username.originalValue == context.user.id,
-    allowApiDelete: (context, user) => user.$.username.originalValue == context.user.id,
+    allowApiUpdate: (context, user) => getFields(user).username.originalValue == context.user.id,
+    allowApiDelete: (context, user) => getFields(user).username.originalValue == context.user.id,
 
     saving: async (user) => {
         if (user.context.backend && user.password) {
@@ -32,7 +27,7 @@ export interface UserModel {
         }
     }
 })
-export class UserEntity extends ProfileEntity {
+export class UserEntity extends ProfileModel {
     @Field({
         validate: [Validators.required, Validators.unique],
         inputType: 'email'
@@ -65,8 +60,9 @@ export class UserEntity extends ProfileEntity {
     }
     @BackendMethod({ allowed: true })
     async saveAndReturnSingleUser() {
-        if (this.isNew() || this.username == this.context.user.id) {
-            await this.save();
+        let ref = getEntityRef(this)
+        if (ref.isNew() || this.username == this.context.user.id) {
+            await ref.save();
             return await this.createSingleUserInterface();
         }
         else throw new Error("Invalid operation");

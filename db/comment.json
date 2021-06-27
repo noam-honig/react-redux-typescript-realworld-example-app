@@ -12,5 +12,12 @@
     "body": "another comment",
     "createdAt": "2021-06-26T06:11:26.249Z",
     "author": "noamhonig"
+  },
+  {
+    "id": 3,
+    "articleId": "title-cz1qsr",
+    "body": "one more comment",
+    "createdAt": "2021-06-27T06:09:47.899Z",
+    "author": "noamhonig"
   }
 ]

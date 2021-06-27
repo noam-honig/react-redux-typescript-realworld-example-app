@@ -17,7 +17,7 @@ const slice = createSlice({
       tagList: action.payload ? action.payload.article.tagList : []
     })
     ,
-    editorPageUnLoaded: (state) => ({}),
+    editorPageUnLoaded: () => ({}),
     articleSubmitted: (state, action: PayloadAction<SingleArticle>) => ({
       ...state,
       inProgress: null

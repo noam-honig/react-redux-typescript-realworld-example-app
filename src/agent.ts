@@ -1,11 +1,11 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
 import { ListOfTags, MultipleArticlesModel, MultipleComments, SingleArticle, SingleComment, SingleProfile, SingleUser } from './models';
-import { CommentEntity, CommentModel } from "./models/CommentModel";
+import { CommentModel } from "./models/CommentModel";
 import { UserEntity, UserModel } from "./models/UserModel";
-import { ArticleEntity, ArticleModel, Favorites as FavoriteEntity } from "./models/ArticleModel";
-import { Context, EntityWhere, EntityBase } from '@remult/core';
-import { Follows as FollowEntity, ProfileEntity } from './models/ProfileModel';
+import { ArticleModel, Favorites as FavoriteEntity } from "./models/ArticleModel";
+import { Context, EntityWhere, getEntityRef, getFields } from '@remult/core';
+import { Follows as FollowEntity, ProfileModel } from './models/ProfileModel';
 import { set } from '@remult/core/set';
 import { TagEntity } from './models/tagsModel';
 import { actionInfo } from '@remult/core/src/server-action';
@@ -74,18 +74,18 @@ const Articles = {
   all: (page?: number) => multipleArticles(undefined, page),
 
   byAuthor: async (author: string, page?: number) => {
-    let auth = await context.for(ProfileEntity).getCachedByIdAsync(author);
+    let auth = await context.for(ProfileModel).getCachedByIdAsync(author);
     return multipleArticles(a => a.author.isEqualTo(auth), page);
   },
   byTag: (tag: string, page?: number) =>
     multipleArticles(a => a.tagList.contains(tag), page),
   del: async (slug: string) =>
-    context.for(ArticleEntity).findId(slug).then(a => a.delete()),
+    context.for(ArticleModel).findId(slug).then(a => getEntityRef(a).delete()),
 
   favorite: (slug: string) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(async article => {
+    context.for(ArticleModel).getCachedByIdAsync(slug).then(async article => {
       if (!article.favoritedRef.exists())
-        await article.favoritedRef.item.save()
+        await getEntityRef(article.favoritedRef.item).save()
       return { article } as SingleArticle
     }),
   favoritedBy: (author: string, page?: number) =>
@@ -93,50 +93,50 @@ const Articles = {
 
   feed: (page?: number) =>
     context.for(FollowEntity).find({ where: f => f.follower.isEqualTo(context.user.id) })
-      .then(f => Promise.all(f.map(f => f.$.following.load())))
+      .then(f => Promise.all(f.map(f => getFields(f).following.load())))
       .then(authors => multipleArticles(a => a.author.isIn(authors), page)),
   get: (slug: string) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(loadAllFields).then(async article => ({ article } as SingleArticle)),
+    context.for(ArticleModel).getCachedByIdAsync(slug).then(loadAllFields).then(async article => ({ article } as SingleArticle)),
   unfavorite: (slug: string) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(async article => {
+    context.for(ArticleModel).getCachedByIdAsync(slug).then(async article => {
       if (article.favoritedRef.exists())
-        await article.favoritedRef.item.delete();
+        await getEntityRef(article.favoritedRef.item).delete();
       return { article } as SingleArticle;
     }),
   update: ({ slug, title, description, body, tagList }: ArticleModel) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(a => {
-      return set(a, { title, description, body, tagList }).save();
+    context.for(ArticleModel).getCachedByIdAsync(slug).then(a => {
+      return getEntityRef(set(a, { title, description, body, tagList })).save();
     }).then(article => ({ article } as SingleArticle))
   ,
   create: ({ slug, title, description, body, tagList }: ArticleModel) =>
-    context.for(ArticleEntity).create({ slug, title, description, body, tagList }).save().then(article => ({ article } as SingleArticle))
+    getEntityRef(context.for(ArticleModel).create({ slug, title, description, body, tagList })).save().then(article => ({ article } as SingleArticle))
 };
 
 const Comments = {
-  create: (slug: string, comment: CommentModel) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => set(article.comments.create(), { body: comment.body }).save()).then(comment => ({ comment } as SingleComment)),
+  create: (slug: string, comment:Partial< CommentModel>) =>
+    context.for(ArticleModel).getCachedByIdAsync(slug).then(article => getEntityRef(set(article.comments.create(), { body: comment.body })).save()).then(comment => ({ comment } as SingleComment)),
   delete: (slug: string, commentId: number) =>
-    context.for(CommentEntity).findFirst(c => c.articleId.isEqualTo(slug).and(c.id.isEqualTo(commentId))).then(c => c.delete()),
+    context.for(CommentModel).findFirst(c => c.articleId.isEqualTo(slug).and(c.id.isEqualTo(commentId))).then(c => getEntityRef(c).delete()),
 
   forArticle: (slug: string) =>
-    context.for(ArticleEntity).getCachedByIdAsync(slug).then(article => article.comments.load()).then(c => Promise.all(c.map(c => loadAllFields(c)))).then(comments => ({ comments } as MultipleComments))
+    context.for(ArticleModel).getCachedByIdAsync(slug).then(article => article.comments.load()).then(c => Promise.all(c.map(c => loadAllFields(c)))).then(comments => ({ comments } as MultipleComments))
 };
 
 const Profile = {
   follow: (username: string) =>
-    context.for(ProfileEntity).getCachedByIdAsync(username).then(async profile => {
+    context.for(ProfileModel).getCachedByIdAsync(username).then(async profile => {
       if (!profile.followingRel.exists())
-        await profile.followingRel.item.save()
+        await getEntityRef(profile.followingRel.item).save()
       return {
         profile
       } as SingleProfile
     }),
   get: (username: string) =>
-    context.for(ProfileEntity).getCachedByIdAsync(username).then(profile => ({ profile } as SingleProfile)),
+    context.for(ProfileModel).getCachedByIdAsync(username).then(profile => ({ profile } as SingleProfile)),
   unfollow: (username: string) =>
-    context.for(ProfileEntity).getCachedByIdAsync(username).then(async profile => {
+    context.for(ProfileModel).getCachedByIdAsync(username).then(async profile => {
       if (profile.followingRel.exists())
-        await profile.followingRel.item.delete();
+        await getEntityRef(profile.followingRel.item).delete();
       return {
         profile
       } as SingleProfile
@@ -154,16 +154,16 @@ export default {
 };
 
 
-async function multipleArticles(where: EntityWhere<ArticleEntity>, page: number): Promise<MultipleArticlesModel> {
+async function multipleArticles(where: EntityWhere<ArticleModel>, page: number): Promise<MultipleArticlesModel> {
   let [articles, articlesCount] =
     await Promise.all([
-      context.for(ArticleEntity).find({ where, limit: 10, page }),
-      context.for(ArticleEntity).count(where)]);
+      context.for(ArticleModel).find({ where, limit: 10, page }),
+      context.for(ArticleModel).count(where)]);
   let res = await Promise.all(articles.map(async (a) => loadAllFields(a).then(() => a)));
   return { articles: res, articlesCount };
 }
 
-export async function loadAllFields<T extends EntityBase>(e: T) {
-  await Promise.all([...e.$].map(x => x.load()));
+export async function loadAllFields<T>(e: T) {
+  await Promise.all([...getFields(e)].map(x => x.load()));
   return e;
 }
