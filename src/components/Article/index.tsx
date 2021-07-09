@@ -1,7 +1,7 @@
 import ArticleMeta from './ArticleMeta';
 import CommentContainer from './CommentContainer';
 import React from 'react';
-import agent, { context, loadAllFields } from '../../agent';
+import agent, { context } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import marked from 'marked';
 import { RouterMatchModel, StateModel } from '../../models';
@@ -20,7 +20,7 @@ const mapDispatchToProps = {
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Article extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
-    context.for(ArticleModel).getCachedByIdAsync(this.props.match.params.id).then(loadAllFields).then(article => {
+    context.for(ArticleModel).findId(this.props.match.params.id).then(article => {
       article.comments.load().then(comments => this.props.onLoad([article, comments]))
     });
   }

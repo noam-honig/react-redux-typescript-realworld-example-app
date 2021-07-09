@@ -53,18 +53,12 @@ export default {
 
 
 
-export async function loadAllFields<T>(e: T) {
-  await Promise.all([...getFields(e)].map(x => x.load()));
-  return e;
-}
-export async function loadAllItems<T>(e: T[]) {
-  return Promise.all(e.map(x => loadAllFields(x)))
-}
+
 
 export async function multipleArticles(where: EntityWhere<ArticleModel>, page: number): Promise<MultipleArticlesModel> {
   let [articles, articlesCount] =
     await Promise.all([
-      context.for(ArticleModel).find({ where, limit: 10, page }).then(loadAllItems),
+      context.for(ArticleModel).find({ where, limit: 10, page }),
       context.for(ArticleModel).count(where)]);
   return { articles, articlesCount };
 }

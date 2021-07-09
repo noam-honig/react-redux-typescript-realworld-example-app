@@ -1,6 +1,6 @@
 import ListErrors from './ListErrors';
 import React from 'react';
-import agent, { context, loadAllFields } from '../agent';
+import { context } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouterMatchModel, StateModel } from '../models';
 import { editorActions } from '../reducers/editor';
@@ -58,7 +58,7 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
     if (this.props.match.params.slug !== nextProps.match.params.slug) {
       if (nextProps.match.params.slug) {
         this.props.onUnload();
-        context.for(ArticleModel).getCachedByIdAsync(this.props.match.params.slug).then(loadAllFields).then(this.props.onLoad);
+        context.for(ArticleModel).findId(this.props.match.params.slug).then(this.props.onLoad);
         return;
       }
       this.props.onLoad(null);
@@ -67,7 +67,7 @@ class Editor extends React.Component<ConnectedProps<typeof connector> & RouterMa
 
   componentWillMount() {
     if (this.props.match.params.slug) {
-      context.for(ArticleModel).getCachedByIdAsync(this.props.match.params.slug).then(loadAllFields).then(this.props.onLoad);
+      context.for(ArticleModel).findId(this.props.match.params.slug).then(this.props.onLoad);
       return;
     }
     this.props.onLoad(null);

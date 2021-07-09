@@ -1,5 +1,5 @@
-import { Validators, Field, Entity, Context, getEntityRef, getFields } from "@remult/core";
-import { CompoundIdField, ManyToOne, OneToMany } from '@remult/core/src/column';
+import { Validators, Field, Entity, Context, getEntityRef, getFields, EntityBase } from "@remult/core";
+import { CompoundIdField, OneToMany } from '@remult/core/src/column';
 import * as slug from "slug";
 
 import { CommentModel } from "./CommentModel";
@@ -12,8 +12,8 @@ import { ProfileModel } from "./ProfileModel";
 
     defaultOrderBy: article => article.createdAt.descending(),
     allowApiInsert: context => context.isSignedIn(),
-    allowApiUpdate: (context, self) => true, // self.author.username == context.user.id,
-    allowApiDelete: (context, self) => true, // self.author.username == context.user.id,
+    allowApiUpdate: (context, self) => self.author.username == context.user.id,
+    allowApiDelete: (context, self) => self.author.username == context.user.id,
     allowApiRead: true,
     saving: async (article) => {
         if (article.context.backend) {
@@ -51,8 +51,11 @@ export class ArticleModel {
     createdAt?: Date = new Date();
     @Field({ allowApiUpdate: false })
     updatedAt?: Date;
-    favoritedRef?= new ManyToOne(this.context.for(Favorites), f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.context.user.id)));
-    @Field<ArticleModel>({ serverExpression: self => self.favoritedRef.exists() })
+    async getFavorited?() {
+        return this.context.for(Favorites).findFirst({ createIfNotFound: true, where: f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.context.user.id)) });
+    }
+
+    @Field<ArticleModel>({ serverExpression: async self => !(await self.getFavorited()).isNew() })
     favorited?: boolean;
     @Field<ArticleModel>({
         serverExpression: async article => article.context.for(Favorites).count(f => f.articleId.isEqualTo(article.slug))
@@ -72,19 +75,20 @@ export class ArticleModel {
 
     }
     async toggleFavorite?() {
-        await this.favoritedRef.load();
+        let favorited = await this.getFavorited();
 
-        if (this.favoritedRef.exists()) {
-            await getEntityRef(this.favoritedRef.item).delete();
-            this.favoritesCount--;
+        if (favorited.isNew()) {
+            await favorited.save();
+            this.favoritesCount++;
         }
         else {
-            await getEntityRef(this.favoritedRef.item).save();
-            this.favoritesCount++;
+            await favorited.delete();
+            this.favoritesCount--;
         }
         await getEntityRef(this).reload();
         return this;
     }
+
 
 }
 @Entity<Favorites>({
@@ -98,7 +102,7 @@ export class ArticleModel {
             self.userId = self.context.user.id;
     }
 })
-export class Favorites {
+export class Favorites extends EntityBase {
     @Field({
         allowApiUpdate: false
     })
@@ -108,7 +112,7 @@ export class Favorites {
     })
     articleId: string;
     constructor(private context: Context) {
-
+        super();
     }
 }
 

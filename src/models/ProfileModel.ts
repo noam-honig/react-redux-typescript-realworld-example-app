@@ -1,4 +1,4 @@
-import { ManyToOne, Field, Context, Entity, Validators, getFields, getEntityRef } from "@remult/core";
+import { Field, Context, Entity, Validators, getFields, getEntityRef, EntityBase } from "@remult/core";
 import { CompoundIdField } from '@remult/core/src/column';
 
 
@@ -19,21 +19,20 @@ export class ProfileModel {
     bio: string;
     @Field({ caption: "URL of profile picture" })
     image: string = '';
-    followingRel?= new ManyToOne(this.context.for(Follows), f => f.follower.isEqualTo(this.context.user.id).and(f.following.isEqualTo(this)));
+    followingRel?() {
+        return this.context.for(Follows).findFirst({ createIfNotFound: true, where: f => f.follower.isEqualTo(this.context.user.id).and(f.following.isEqualTo(this)) });
+    }
     @Field<ProfileModel>({
-        serverExpression: async self => {
-            await self.followingRel.load();
-            return self.followingRel.exists();
-        }
+        serverExpression: async self => !(await self.followingRel()).isNew()
     })
     following: boolean;
     async toggleFollowing() {
-        await this.followingRel.load();
-        if (!this.followingRel.exists()) {
-            await getEntityRef(this.followingRel.item).save();
+        let f = await this.followingRel();
+        if (f.isNew()) {
+            await f.save();
         }
         else {
-            await getEntityRef(this.followingRel.item).delete();
+            await f.delete();
         }
         await getEntityRef(this).reload();
         return this;
@@ -56,7 +55,7 @@ export class ProfileModel {
         follows.follower.isEqualTo(context.user.id)
 
 })
-export class Follows {
+export class Follows extends EntityBase {
     @Field({
         allowApiUpdate: false
     })
@@ -64,7 +63,7 @@ export class Follows {
     @Field()
     following: ProfileModel;
     constructor(private context: Context) {
-
+        super();
     }
 
 }

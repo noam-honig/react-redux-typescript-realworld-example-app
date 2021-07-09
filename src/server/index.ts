@@ -5,6 +5,7 @@ import * as compression from 'compression';
 import * as helmet from 'helmet';
 import { config } from 'dotenv';
 
+
 import "../models/ProfileModel";
 import "../models/ArticleModel";
 import "../models/UserModel";
@@ -22,3 +23,5 @@ app.use(helmet());
 app.use(compression());
 initExpress(app);
 app.listen(3002, () => console.log("Server started"));
+
+

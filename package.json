@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.0",
-    "@remult/core": "^3.0.30",
+    "@remult/core": "^3.1.2",
     "argon2": "^0.28.2",
     "compression": "^1.7.4",
     "express": "^4.17.1",
