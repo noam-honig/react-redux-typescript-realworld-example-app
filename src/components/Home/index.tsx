@@ -2,7 +2,7 @@ import Banner from './Banner';
 import MainView from './MainView';
 import React from 'react';
 import Tags from './Tags';
-import agent, { context, userArticleFeed, multipleArticles } from '../../agent';
+import agent, { remult, multipleArticles } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { HomeState, StateModel } from '../../models';
 import { articleListActions } from '../../reducers/articleList';
@@ -28,13 +28,12 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 class Home extends React.Component<ConnectedProps<typeof connector> & HomeState> {
   componentWillMount() {
     const tab = this.props.token ? 'feed' : 'all';
-    const articlesPromise = this.props.token ?
-      userArticleFeed :
-      page => multipleArticles(undefined, page);
-    Promise.all([context.for(TagEntity).find().then(x => x.map(x => x.tag)), articlesPromise()]).then(x => {
+    const pager =
+      page => multipleArticles(() => ArticleModel.filter.build({ userFeed: !!this.props.token }), page);
+    Promise.all([remult.repo(TagEntity).find().then(x => x.map(x => x.tag)), pager(0)]).then(x => {
       this.props.onLoad({
         tab: tab,
-        pager: articlesPromise,
+        pager,
         articles: x[1],
         tags: x[0]
       })

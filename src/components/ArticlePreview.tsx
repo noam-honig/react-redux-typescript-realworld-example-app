@@ -14,8 +14,8 @@ const mapDispatchToProps = ({
 });
 
 const connector = connect(() => ({}), mapDispatchToProps);
-const ArticlePreview = (props: ConnectedProps<typeof connector> & { article: ArticleModel }) => {
-  const article = props.article;
+const ArticlePreview = (props: ConnectedProps<typeof connector> & { art: { article: ArticleModel } }) => {
+  const article = props.art.article;
   const favoriteButtonClass = article.favorited ?
     FAVORITED_CLASS :
     NOT_FAVORITED_CLASS;
@@ -24,7 +24,8 @@ const ArticlePreview = (props: ConnectedProps<typeof connector> & { article: Art
     ev.preventDefault();
     article.toggleFavorite().then(props.refreshFavorite);
   };
-
+  let { slug, favorited, favoritesCount } = article;
+  console.log({ slug, favorited, favoritesCount });
   return (
     <div className="article-preview">
       <div className="article-meta">

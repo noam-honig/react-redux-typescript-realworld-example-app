@@ -1,9 +1,8 @@
 import React from 'react';
-import agent, { context } from '../../agent';
+import agent, { remult } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { articleActions } from '../../reducers/article';
 import { CommentModel } from '../../models/CommentModel';
-import { getEntityRef } from '@remult/core';
 
 const mapDispatchToProps = ({
   onClick: articleActions.deleteComment
@@ -15,7 +14,7 @@ const DeleteButton = (props: ConnectedProps<typeof connector> & {
   show: boolean
 }) => {
   const del = () => {
-    getEntityRef(props.comment).delete().then(()=>props.onClick(props.comment.id))
+    props.comment.delete().then(()=>props.onClick(props.comment.id))
   };
 
   if (props.show) {

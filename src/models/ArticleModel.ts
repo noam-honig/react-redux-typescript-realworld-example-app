@@ -1,9 +1,9 @@
-import { Validators, Field, Entity, Context, getEntityRef, getFields, EntityBase } from "@remult/core";
-import { CompoundIdField, OneToMany } from '@remult/core/src/column';
+import { Validators, Field, Entity, getEntityRef, getFields, EntityBase, Allow, CustomFilterBuilder, Filter, AndFilter, Remult, isBackend } from "remult";
+import { CompoundIdField, OneToMany } from 'remult/src/column';
 import * as slug from "slug";
 
 import { CommentModel } from "./CommentModel";
-import { ProfileModel } from "./ProfileModel";
+import { Follows, ProfileModel } from "./ProfileModel";
 
 
 
@@ -11,22 +11,23 @@ import { ProfileModel } from "./ProfileModel";
     key: 'article',
 
     defaultOrderBy: article => article.createdAt.descending(),
-    allowApiInsert: context => context.isSignedIn(),
-    allowApiUpdate: (context, self) => self.author.username == context.user.id,
-    allowApiDelete: (context, self) => self.author.username == context.user.id,
+    allowApiInsert: Allow.authenticated,
+    allowApiUpdate: (remult, self) => self.author.username == remult.user.id,
+    allowApiDelete: (remult, self) => self.author.username == remult.user.id,
     allowApiRead: true,
     saving: async (article) => {
-        if (article.context.backend) {
+        if (isBackend()) {
             if (getEntityRef(article).isNew())
-                article.author = await article.context.for(ProfileModel).findId(article.context.user.id)
+                article.author = await article.remult.repo(ProfileModel).findId(article.remult.user.id)
             article.updatedAt = new Date();
-            if (getFields(article).title.wasChanged()) {
+            if (getFields(article).title.valueChanged()) {
                 article.slug = slug(article.title, { lower: true }) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36)
             }
         }
-    }
+    },
+    customFilterBuilder: () => ArticleModel.filter
 })
-export class ArticleModel {
+export class ArticleModel extends EntityBase {
 
     @Field({ allowApiUpdate: false })
     slug?: string;
@@ -52,27 +53,27 @@ export class ArticleModel {
     @Field({ allowApiUpdate: false })
     updatedAt?: Date;
     async getFavorited?() {
-        return this.context.for(Favorites).findFirst({ createIfNotFound: true, where: f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.context.user.id)) });
+        return this.remult.repo(Favorites).findFirst({ createIfNotFound: true, where: f => f.articleId.isEqualTo(this.slug).and(f.userId.isEqualTo(this.remult.user.id)) });
     }
 
     @Field<ArticleModel>({ serverExpression: async self => !(await self.getFavorited()).isNew() })
     favorited?: boolean;
     @Field<ArticleModel>({
-        serverExpression: async article => article.context.for(Favorites).count(f => f.articleId.isEqualTo(article.slug))
+        serverExpression: async article => article.remult.repo(Favorites).count(f => f.articleId.isEqualTo(article.slug))
     })
     favoritesCount?: number;
     @Field<ArticleModel>({
-        dataType: ProfileModel,
+        valueType: ProfileModel,
         allowApiUpdate: false
     })
     author?: ProfileModel;
 
-    comments?= new OneToMany(this.context.for(CommentModel), {
+    comments?= new OneToMany(this.remult.repo(CommentModel), {
         where: c => c.articleId.isEqualTo(this.slug)
     })
 
-    constructor(private context?: Context) {
-
+    constructor(private remult?: Remult) {
+        super();
     }
     async toggleFavorite?() {
         let favorited = await this.getFavorited();
@@ -85,21 +86,37 @@ export class ArticleModel {
             await favorited.delete();
             this.favoritesCount--;
         }
-        await getEntityRef(this).reload();
-        return this;
+        return await this._.reload();
     }
+    static filter = new CustomFilterBuilder<ArticleModel,
+        {
+            userFeed?: boolean,
+            favoritedByUser?: string
+        }>(async (a, c, remult) => {
+            let result: Filter[] = [];
+
+            if (c.userFeed) {
+                result.push(await remult.repo(Follows).find({ where: f => f.follower.isEqualTo(remult.user.id) })
+                    .then(f => Promise.all(f.map(f => getFields(f).following.load())))
+                    .then(authors => a.author.isIn(authors)));
+            } else if (c.favoritedByUser) {
+                let favorites = await remult.repo(Favorites).find({ where: favorite => favorite.userId.isEqualTo(c.favoritedByUser) })
+                result.push(a.slug.isIn(favorites.map(f => f.articleId)));
+            }
+            return new AndFilter(...result);
+        });
 
 
 }
 @Entity<Favorites>({
     key: 'Favorites',
     id: self => new CompoundIdField(self.userId, self.articleId),
-    allowApiInsert: context => context.isSignedIn(),
+    allowApiInsert: Allow.authenticated,
     allowApiDelete: (context, self) => self.userId == context.user.id,
     allowApiRead: true,
     saving: (self) => {
         if (getEntityRef(self).isNew())
-            self.userId = self.context.user.id;
+            self.userId = self.remult.user.id;
     }
 })
 export class Favorites extends EntityBase {
@@ -111,8 +128,9 @@ export class Favorites extends EntityBase {
         allowApiUpdate: (c, self) => getEntityRef(self).isNew()
     })
     articleId: string;
-    constructor(private context: Context) {
+    constructor(private remult: Remult) {
         super();
     }
+
 }
 

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import ListErrors from './ListErrors';
 import React from 'react';
-import agent, { context } from '../agent';
+import agent, { remult } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { StateModel } from '../models';
 import { authActions } from '../reducers/auth';
@@ -30,7 +30,7 @@ class Login extends React.Component<ConnectedProps<typeof connector>> {
     ev.preventDefault();
     runAsync(UserModel.signIn(email, password).then(async ({ token }) => {
       agent.setToken(token);
-      let user = await context.for(UserModel).findId(context.user.id);
+      let user = await remult.repo(UserModel).findId(remult.user.id);
       return [token, user];
     }), this.props.onSubmit);
   };

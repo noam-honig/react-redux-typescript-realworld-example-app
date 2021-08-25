@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { EditorState } from '../models';
 import { asyncError, asyncStart } from '../constants/actionTypes';
 import { ArticleModel } from '../models/ArticleModel';
-import { context } from '../agent';
+import { remult } from '../agent';
 
 const slice = createSlice({
   name: 'editor',
@@ -11,7 +11,7 @@ const slice = createSlice({
     editorPageLoaded: (state, action: PayloadAction<ArticleModel>) =>
     ({
       ...state,
-      article: action.payload ? action.payload : context.for(ArticleModel).create(),
+      article: action.payload ? action.payload : remult.repo(ArticleModel).create(),
       articleSlug: action.payload ? action.payload.slug : '',
       title: action.payload ? action.payload.title : '',
       description: action.payload ? action.payload.description : '',
@@ -37,7 +37,7 @@ const slice = createSlice({
       {
         ...state, [action.payload.key]: action.payload.value
       }),
-    editorPageUnLoaded: () => ({})
+    editorPageUnLoaded: (state) => ({...state})
   },
   extraReducers: reducers => {
     reducers.addCase(asyncStart, (state) => ({

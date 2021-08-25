@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { initExpress } from '@remult/core/server';
+import { initExpress } from 'remult/server';
 import * as expressJwt from 'express-jwt';
 import * as compression from 'compression';
 import * as helmet from 'helmet';

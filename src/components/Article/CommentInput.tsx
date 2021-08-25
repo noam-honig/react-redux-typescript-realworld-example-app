@@ -1,12 +1,8 @@
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-
-
 import { articleActions } from '../../reducers/article';
 import { ProfileModel } from '../../models/ProfileModel';
 import { ArticleModel } from '../../models/ArticleModel';
-import { getEntityRef } from '@remult/core';
-import { set } from '@remult/core/set';
 
 
 const mapDispatchToProps = {
@@ -31,7 +27,8 @@ class CommentInput extends React.Component<ConnectedProps<typeof connector> & {
 
   createComment = (ev: React.FormEvent) => {
     ev.preventDefault();
-    getEntityRef(set(this.props.article.comments.create(), { body: this.state.body })).save()
+    this.props.article.comments.create({ body: this.state.body })
+      .then(article => article.save())
       .then(payload => {
         this.setState({ body: '' });
         this.props.onSubmit(payload);

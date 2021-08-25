@@ -6,7 +6,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { StateModel } from '../../models';
 import { articleListActions } from '../../reducers/articleList';
 import { ArticleModel } from '../../models/ArticleModel';
-import { multipleArticles, userArticleFeed } from '../../agent';
+import { multipleArticles } from '../../agent';
 
 const YourFeedTab = (props: {
   token: string,
@@ -16,9 +16,10 @@ const YourFeedTab = (props: {
   if (props.token) {
     const clickHandler = ev => {
       ev.preventDefault();
-      userArticleFeed(0).then(articles =>
+      let pager = page => multipleArticles(() => ArticleModel.filter.build({ userFeed: true }), page)
+      pager(0).then(articles =>
         props.onTabClick({
-          tab: 'feed', pager: userArticleFeed, articles
+          tab: 'feed',  pager, articles
         }));
     }
 

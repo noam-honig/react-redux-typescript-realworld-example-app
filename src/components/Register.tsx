@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import ListErrors from './ListErrors';
 import React from 'react';
-import agent, { context } from '../agent';
+import agent, { remult } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { StateModel } from '../models';
 import { authActions } from '../reducers/auth';
@@ -30,7 +30,7 @@ class Register extends React.Component<ConnectedProps<typeof connector>> {
   changeUsername = ev => this.props.onChangeUsername(ev.target.value);
   submitForm = (username, email, password) => ev => {
     ev.preventDefault();
-    let user = context.for(UserModel).create({ username, email, password });
+    let user = remult.repo(UserModel).create({ username, email, password });
     runAsync(user.saveAndReturnToken(), ({ token }) => this.props.onSubmit([user, token]));
   } 
 

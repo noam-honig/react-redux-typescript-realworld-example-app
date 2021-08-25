@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom';
-import React from 'react';
-import agent from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import { ArticleModel } from "../../models/ArticleModel";
 import { commonActions } from '../../reducers/common';
-import { getEntityRef } from '@remult/core';
 
 const mapDispatchToProps = ({
   onClickDelete: commonActions.deleteArticle
@@ -16,7 +13,7 @@ const ArticleActions = (props: ConnectedProps<typeof connector> & {
 }) => {
   const article = props.article;
   const del = () => {
-    getEntityRef(article).delete().then(props.onClickDelete);
+    article.delete().then(props.onClickDelete);
   };
   if (props.canModify) {
     return (

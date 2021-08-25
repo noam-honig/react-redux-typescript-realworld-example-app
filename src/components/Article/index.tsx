@@ -1,7 +1,7 @@
 import ArticleMeta from './ArticleMeta';
 import CommentContainer from './CommentContainer';
 import React from 'react';
-import agent, { context } from '../../agent';
+import agent, { remult } from '../../agent';
 import { connect, ConnectedProps } from 'react-redux';
 import marked from 'marked';
 import { RouterMatchModel, StateModel } from '../../models';
@@ -20,7 +20,7 @@ const mapDispatchToProps = {
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Article extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
-    context.for(ArticleModel).findId(this.props.match.params.id).then(article => {
+    remult.repo(ArticleModel).findId(this.props.match.params.id).then(article => {
       article.comments.load().then(comments => this.props.onLoad([article, comments]))
     });
   }

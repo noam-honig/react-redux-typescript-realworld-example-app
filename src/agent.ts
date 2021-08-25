@@ -1,8 +1,8 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
-import { Context, EntityWhere, getFields, UserInfo } from '@remult/core';
+import { Remult, EntityWhere,  UserInfo } from 'remult';
 import jwt_decode from 'jwt-decode';
-import { actionInfo } from '@remult/core/src/server-action';
+import { actionInfo } from 'remult/src/server-action';
 import { ArticleModel } from './models/ArticleModel';
 import { MultipleArticlesModel } from './models';
 import { Follows } from './models/ProfileModel';
@@ -22,7 +22,7 @@ const tokenPlugin = req => {
 
 actionInfo.runningOnServer = false;
 
-export const context = new Context({
+export const remult = new Remult({
   delete: (url: string) =>
     superagent.del(`/${url}`).use(tokenPlugin).then(responseBody),
   get: (url: string) =>
@@ -47,7 +47,7 @@ export default {
     let userInfo: UserInfo = undefined;
     if (token)
       userInfo = jwt_decode(token);
-    context.setUser(userInfo);
+    remult.setUser(userInfo);
   }
 };
 
@@ -58,12 +58,7 @@ export default {
 export async function multipleArticles(where: EntityWhere<ArticleModel>, page: number): Promise<MultipleArticlesModel> {
   let [articles, articlesCount] =
     await Promise.all([
-      context.for(ArticleModel).find({ where, limit: 10, page }),
-      context.for(ArticleModel).count(where)]);
+      remult.repo(ArticleModel).find({ where, limit: 10, page }),
+      remult.repo(ArticleModel).count(where)]);
   return { articles, articlesCount };
-}
-export function userArticleFeed(page = 0) {
-  return context.for(Follows).find({ where: f => f.follower.isEqualTo(context.user.id) })
-    .then(f => Promise.all(f.map(f => getFields(f).following.load())))
-    .then(authors => multipleArticles(a => a.author.isIn(authors), page));
 }

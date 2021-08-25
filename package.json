@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.0",
-    "@remult/core": "^3.1.2",
     "argon2": "^0.28.2",
     "compression": "^1.7.4",
     "express": "^4.17.1",
@@ -45,6 +44,7 @@
     "redux-devtools-extension": "^2.13.2",
     "redux-logger": "^3.0.1",
     "reflect-metadata": "^0.1.13",
+    "remult": "^0.2.5",
     "slug": "^5.1.0",
     "superagent": "^3.8.2",
     "superagent-promise": "^1.1.0",

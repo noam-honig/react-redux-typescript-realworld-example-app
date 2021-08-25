@@ -1,4 +1,4 @@
-import agent, { context } from '../agent';
+import agent, { remult } from '../agent';
 import Header from './Header';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
@@ -48,7 +48,7 @@ class App extends React.Component<ConnectedProps<typeof connector>> {
     }
     let promise: Promise<UserModel> = Promise.resolve(undefined);;
     if (token)
-      promise = context.for(UserModel).findId(context.user.id);
+      promise = remult.repo(UserModel).findId(remult.user.id);
     promise.then(user => {
       this.props.onLoad({ user: user, token });
     })

@@ -1,7 +1,7 @@
 import { store } from '../store'
 import { ActionCreatorWithOptionalPayload } from '@reduxjs/toolkit';
 import { createAction } from "@reduxjs/toolkit";
-import { ErrorInfo } from '@remult/core'
+import { ErrorInfo } from 'remult'
 
 export const asyncStart = createAction("asyncStart");
 export const asyncError = createAction<{ errors: any }>("asyncError");

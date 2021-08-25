@@ -1,5 +1,5 @@
-import {  ProfileModel } from "./ProfileModel";
-import { Field, Entity, Context, Validators, getEntityRef } from "@remult/core";
+import { ProfileModel } from "./ProfileModel";
+import { Field, Entity, Validators, getEntityRef, Allow, Remult, isBackend, EntityBase } from "remult";
 
 
 
@@ -7,13 +7,13 @@ import { Field, Entity, Context, Validators, getEntityRef } from "@remult/core";
 @Entity<CommentModel>({
     key: 'comment',
     //dbAutoIncrementId: true,
-    allowApiUpdate: (context, comment) => comment.author.username == context.user.id,
-    allowApiDelete: (context, comment) => comment.author.username == context.user.id,
-    allowApiInsert: context => context.isSignedIn(),
+    allowApiUpdate: (remult, comment) => comment.author.username == remult.user.id,
+    allowApiDelete: (remult, comment) => comment.author.username == remult.user.id,
+    allowApiInsert: Allow.authenticated,
     allowApiRead: true,
     saving: async (self) => {
-        if (self.context.backend && getEntityRef(self).isNew()) {
-            self.author = await self.context.for(ProfileModel).findId(self.context.user.id);
+        if (isBackend() && getEntityRef(self).isNew()) {
+            self.author = await self.remult.repo(ProfileModel).findId(self.remult.user.id);
             let max = await getEntityRef(self).repository.find({
                 orderBy: c => c.id.descending(),
                 limit: 1
@@ -21,12 +21,12 @@ import { Field, Entity, Context, Validators, getEntityRef } from "@remult/core";
             if (max.length == 1) {
                 self.id = max[0].id + 1;
             } else
-                self.id = 1; 
+                self.id = 1;
         }
 
     }
 })
-export class CommentModel  {
+export class CommentModel extends EntityBase {
     @Field({
         allowApiUpdate: false
     })
@@ -44,12 +44,12 @@ export class CommentModel  {
     })
     createdAt: Date = new Date();
     @Field<CommentModel>({
-        dataType: ProfileModel,
+        valueType: ProfileModel,
         allowApiUpdate: false
     })
     author: ProfileModel;
-    constructor(private context: Context) {
-
+    constructor(private remult: Remult) { 
+        super();
     }
 
 

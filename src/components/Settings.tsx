@@ -1,6 +1,6 @@
 import ListErrors from './ListErrors';
 import React from 'react';
-import agent, { context } from '../agent';
+import agent, { remult } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { SettingsFormsState, StateModel } from '../models';
@@ -8,7 +8,7 @@ import { settingsActions } from '../reducers/settings';
 import { commonActions } from '../reducers/common';
 import { runAsync } from '../constants/actionTypes';
 import { UserModel } from '../models/UserModel';
-import { set } from '@remult/core/set';
+import { set } from 'remult/set';
 
 class SettingsForm extends React.Component<{
   currentUser: UserModel,

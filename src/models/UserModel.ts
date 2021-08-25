@@ -1,20 +1,20 @@
 import { ProfileModel } from "./ProfileModel";
-import { Field, Context, Entity, UserInfo, Validators, BackendMethod, getEntityRef, getFields } from "@remult/core";
+import { Field, Entity, UserInfo, Validators, BackendMethod, getEntityRef, getFields, Allow, Remult, isBackend } from "remult";
 
 const passwordPlaceholder = 'passwordPlaceholder';
 
 @Entity<UserModel>({
     key: 'user',
     dbName: 'users',
-    allowApiCrud: context => context.isSignedIn(),
+    allowApiCrud: Allow.authenticated,
     allowApiRead: true,
     allowApiInsert: false,
     apiRequireId: true,
-    allowApiUpdate: (context, user) =>true,// getFields(user).username.originalValue == context.user.id,
+    allowApiUpdate: (context, user) => getFields(user).username.originalValue == context.user.id,
     allowApiDelete: (context, user) => getFields(user).username.originalValue == context.user.id,
 
     saving: async (user) => {
-        if (user.context.backend && user.password) {
+        if (isBackend() && user.password) {
             user.hashedPassword = await (await import('argon2')).hash(user.password);
         }
     }
@@ -39,8 +39,8 @@ export class UserModel extends ProfileModel {
     hashedPassword: string = '';
 
     @BackendMethod({ allowed: true })
-    static async signIn(email: string, password: string, context?: Context) {
-        let user = await context.for(UserModel).findFirst(x => x.email.isEqualTo(email));
+    static async signIn(email: string, password: string, remult?: Remult) {
+        let user = await remult.repo(UserModel).findFirst(x => x.email.isEqualTo(email));
         let errorMessage = "email or password is invalid";
 
         if (!user)
@@ -53,13 +53,13 @@ export class UserModel extends ProfileModel {
     @BackendMethod({ allowed: true })
     async saveAndReturnToken() {
         let ref = getEntityRef(this)
-        if (ref.isNew() || this.username == this.context.user.id) {
+        if (ref.isNew() || this.username == this.remult.user.id) {
             await ref.save();
             return await this.createToken();
         }
         else throw new Error("Invalid operation");
     }
-    
+
     async createToken(): Promise<{ token: string }> {
         let userInfo: UserInfo = {
             id: this.username,

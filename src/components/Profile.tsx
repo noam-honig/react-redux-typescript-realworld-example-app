@@ -1,7 +1,7 @@
 import ArticleList from './ArticleList';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { context, multipleArticles } from '../agent';
+import { remult, multipleArticles } from '../agent';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { RouterMatchModel, StateModel } from '../models';
@@ -70,7 +70,7 @@ const mapDispatchToProps = ({
 const connector = connect(mapStateToProps, mapDispatchToProps);
 class Profile extends React.Component<ConnectedProps<typeof connector> & RouterMatchModel> {
   componentWillMount() {
-    context.for(ProfileModel).findId(this.props.match.params.username).then(author => {
+    remult.repo(ProfileModel).findId(this.props.match.params.username).then(author => {
       let pager = (page = 0) => multipleArticles(article => article.author.isEqualTo(author), page);
       pager(0).then(articles => this.props.onLoad({ pager, data: [author, articles] }));
     });

@@ -28,16 +28,7 @@ const slice = createSlice({
       }),
     refreshArticleFavorited: (state, action: PayloadAction<ArticleModel>) => ({
       ...state,
-      articles: state.articles.map(article => {
-        if (article.slug === action.payload.slug) {
-          return {
-            ...article,
-            favorited: action.payload.favorited,
-            favoritesCount: action.payload.favoritesCount
-          };
-        }
-        return article;
-      })
+      articles: [...state.articles]
     }),
     setPage: (state, action: PayloadAction<{ articles: MultipleArticlesModel, page: number }>) =>
     ({
@@ -59,7 +50,7 @@ const slice = createSlice({
       currentPage: 0,
       tag: null
     })
-    
+
   }
   ,
   extraReducers: builder => {
