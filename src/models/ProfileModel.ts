@@ -18,7 +18,7 @@ export class ProfileModel extends EntityBase {
     @Field()
     bio: string;
     @Field({ caption: "URL of profile picture" })
-    image: string = '';
+    image: string = 'https://realworld-temp-api.herokuapp.com/images/smiley-cyrus.jpeg';
     followingRel?() {
         return this.remult.repo(Follows).findFirst({ createIfNotFound: true, where: f => f.follower.isEqualTo(this.remult.user.id).and(f.following.isEqualTo(this)) });
     }
